@@ -1,0 +1,9 @@
+# Validators
+
+This directory contains field and business logic validation scripts.
+
+Examples:
+- Email validators
+- Phone number validators
+- Form field validators
+- Business rule validators

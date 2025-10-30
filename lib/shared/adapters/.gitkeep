@@ -1,0 +1,8 @@
+# Data Adapters
+
+This directory contains adapters for data mapping and serialization.
+
+Examples:
+- JSON serialization/deserialization adapters
+- Data transformation utilities
+- API response adapters
