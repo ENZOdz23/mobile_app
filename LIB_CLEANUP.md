@@ -13,10 +13,11 @@ bash scripts/clean_lib.sh
 
 ### Manual Method
 ```bash
-# Delete a specific subfolder
+# Delete a specific subfolder (recommended for tracked files)
 git rm -r lib/subfolder_name
 
 # Or delete all subfolders (keeping .dart files at root)
+# ⚠️ WARNING: This permanently deletes files. Commit changes first!
 find lib -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 ```
 
