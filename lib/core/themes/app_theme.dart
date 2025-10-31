@@ -109,6 +109,16 @@ abstract class AppBaseTheme {
         buttonTheme: buttonTheme,
         cardColor: surfaceColor,
         textTheme: textTheme,
+        
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedItemColor: AppColors.primary,             // Your theme's primary color
+          unselectedItemColor: AppColors.secondary,         // Your theme's accent/secondary color
+          backgroundColor: AppColors.primary,          // or AppColors.surfaceDark for dark mode
+          showSelectedLabels: true,
+          showUnselectedLabels: false,
+          // Add any other options you want globally
+        ),
+
       );
 
   Brightness get _brightness;
