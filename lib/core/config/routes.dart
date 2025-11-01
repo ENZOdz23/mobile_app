@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import '../../features/authentication/presentation/login_screen.dart';
 import '../../features/authentication/presentation/otp_screen.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/home/presentation/home_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
   static const String otp = '/otp';
   static const String dashboard = '/dashboard';
+  static const String home = '/home';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -21,8 +23,8 @@ class AppRoutes {
           builder: (_) => OtpScreen(phoneNumber: phoneNumber),
         );
 
-      // case dashboard:
-      //   return MaterialPageRoute(builder: (_) => const DashboardScreen());
+      case home:
+        return MaterialPageRoute(builder: (_) => HomeScreen());
 
       // Add other routes as needed
 

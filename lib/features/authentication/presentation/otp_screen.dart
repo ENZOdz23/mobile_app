@@ -118,7 +118,7 @@ class _OtpScreenState extends State<OtpScreen> {
       if (isValid) {
         // Navigate to main app
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
         _attemptCount++;
