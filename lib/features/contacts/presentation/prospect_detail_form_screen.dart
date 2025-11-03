@@ -144,8 +144,8 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _QuickActionButton(
-                icon: Icons.phone,
-                label: 'Tel',
+                icon: Icons.change_circle,
+                label: 'Etat',
                 color: AppColors.primary,
                 onTap: () {
                   // TODO: Make phone call
