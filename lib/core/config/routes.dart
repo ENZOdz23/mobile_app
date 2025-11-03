@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import '../../features/authentication/presentation/login_screen.dart';
 import '../../features/authentication/presentation/otp_screen.dart';
-import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 
 class AppRoutes {

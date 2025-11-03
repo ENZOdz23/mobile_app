@@ -4,7 +4,7 @@ import '../../models/offer_model.dart';
 class OfferCard extends StatelessWidget {
   final OfferModel offer;
 
-  const OfferCard({required this.offer, Key? key}) : super(key: key);
+  const OfferCard({required this.offer, super.key});
 
   @override
   Widget build(BuildContext context) {
