@@ -7,6 +7,7 @@ import '../../features/authentication/presentation/otp_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/entreprise_state/entreprise_state.dart';
 import '../../features/contacts/presentation/contacts_list_screen.dart';
+import '../../features/calendar/presentation/calendar_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
@@ -15,6 +16,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String changeEntrepriseState = '/change-entreprise-state';
   static const String contacts = '/contacts';  
+  static const String calendar = '/calendar';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -38,7 +40,8 @@ class AppRoutes {
         ));
       case contacts:  // Route for contacts
         return MaterialPageRoute(builder: (_) => ContactsListScreen());
-
+      case calendar:  // Route for calendar
+        return MaterialPageRoute(builder: (_) => CalendarScreen());
       // Add other routes as needed
 
       default:

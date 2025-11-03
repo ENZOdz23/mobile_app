@@ -44,7 +44,7 @@ class ProspectraApp extends StatelessWidget {
       themeMode: ThemeMode.light, // Default to light mode
 
       // Routing
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.calendar,
       onGenerateRoute: AppRoutes.generateRoute,
 
       // Localization (add when implementing multi-language support)
