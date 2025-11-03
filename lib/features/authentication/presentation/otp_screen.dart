@@ -9,7 +9,7 @@ import '../../../../shared/validators/otp_validator.dart';
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const OtpScreen({Key? key, required this.phoneNumber}) : super(key: key);
+  const OtpScreen({super.key, required this.phoneNumber});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -256,7 +256,7 @@ class _OtpScreenState extends State<OtpScreen> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           onPressed: () {
             // Clear any ongoing processes
@@ -320,7 +320,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     children: [
                       const SizedBox(width: 12),
                       Text(
-                        '${widget.phoneNumber}',
+                        widget.phoneNumber,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

@@ -14,6 +14,8 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/config/routes.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
