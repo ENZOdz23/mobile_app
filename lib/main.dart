@@ -1,6 +1,6 @@
 // lib/main.dart
 
-import 'package:flutter/material.dart';
+import 'core/utils/utils.dart';
 import 'package:flutter/services.dart';
 import 'core/themes/app_theme.dart';
 import 'core/config/routes.dart';

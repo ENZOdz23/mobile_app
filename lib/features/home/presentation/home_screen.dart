@@ -37,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: 'Bonjour !',
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
           SizedBox(height: 16),
           FutureBuilder<List<BannerModel>>(
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!snapshot.hasData) return CircularProgressIndicator();
               var offerList = snapshot.data!;
               return SizedBox(
-                height: 340, // or as tall as you want that section
+                height: 244, // or as tall as you want that section
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3, // 3 cards per row (set 3, 4 if wanted)
@@ -76,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
+      ),
       ),
       currentIndex: 0,
       onNavTap: (int index) {

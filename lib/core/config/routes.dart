@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import '../../features/authentication/presentation/login_screen.dart';
 import '../../features/authentication/presentation/otp_screen.dart';
+//import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/entreprise_state/entreprise_state.dart';
 import '../../features/contacts/presentation/contacts_list_screen.dart';
 
 class AppRoutes {
@@ -11,6 +13,7 @@ class AppRoutes {
   static const String otp = '/otp';
   static const String dashboard = '/dashboard';
   static const String home = '/home';
+  static const String changeEntrepriseState = '/change-entreprise-state';
   static const String contacts = '/contacts';  
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -27,6 +30,12 @@ class AppRoutes {
       case home:
         return MaterialPageRoute(builder: (_) => HomeScreen());
 
+      case changeEntrepriseState:
+        return MaterialPageRoute(builder: (_) => ChangeEntrepriseStatePage(
+          getCompaniesUseCase: GetCompaniesUseCase(CompanyRepositoryImpl()),
+          getStatesUseCase: GetStatesUseCase(CompanyRepositoryImpl()),
+          updateCompanyStateUseCase: UpdateCompanyStateUseCase(CompanyRepositoryImpl()),
+        ));
       case contacts:  // Route for contacts
         return MaterialPageRoute(builder: (_) => ContactsListScreen());
 
