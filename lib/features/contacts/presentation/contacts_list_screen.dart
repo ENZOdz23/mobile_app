@@ -10,6 +10,15 @@ import '../../../shared/components/base_scaffold.dart';
 import '../../../core/config/routes.dart';
 import 'contact_form_screen.dart';
 import 'widgets/contact_item.dart';
+import 'widgets/prospect_item.dart';
+import 'prospect_detail_form_screen.dart';
+import '../models/prospect.dart';
+import '../domain/get_prospects_use_case.dart';
+import '../domain/prospect_repository.dart';
+import '../data/prospect_local_data_source.dart';
+import '../data/prospect_repository_impl.dart';
+
+enum ContactType { client, prospect }
 
 class ContactsListScreen extends StatefulWidget {
   @override
@@ -17,53 +26,33 @@ class ContactsListScreen extends StatefulWidget {
 }
 
 class _ContactsListScreenState extends State<ContactsListScreen> {
-  late ContactsRepository _repository;
+  late ContactsRepository _contactRepository;
+  late ProspectRepository _prospectRepository;
   late GetContactsUseCase _getContactsUseCase;
+  late GetProspectsUseCase _getProspectsUseCase;
   late Future<List<Contact>> _contactsFuture;
+  late Future<List<Prospect>> _prospectsFuture;
   ContactType _selectedType = ContactType.client;
 
   @override
   void initState() {
     super.initState();
-    _repository = ContactsRepositoryImpl(
+    _contactRepository = ContactsRepositoryImpl(
       localDataSource: ContactsLocalDataSource(),
     );
-    _getContactsUseCase = GetContactsUseCase(_repository);
-    _loadContacts();
+    _prospectRepository = ProspectsRepositoryImpl(
+      localDataSource: ProspectsLocalDataSource(),
+    );
+    _getContactsUseCase = GetContactsUseCase(_contactRepository);
+    _getProspectsUseCase = GetProspectsUseCase(_prospectRepository);
+    _loadData();
   }
 
-  void _loadContacts() {
+  void _loadData() {
     setState(() {
       _contactsFuture = _getContactsUseCase();
+      _prospectsFuture = _getProspectsUseCase();
     });
-  }
-
-  void _deleteContact(String id) async {
-    final confirm = await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Supprimer ce contact ?'),
-        content: Text('Cette action est irréversible.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('Supprimer'),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      await _repository.deleteContact(id);
-      _loadContacts();
-    }
-  }
-
-  List<Contact> _filterContactsByType(List<Contact> contacts) {
-    return contacts.where((contact) => contact.type == _selectedType).toList();
   }
 
   @override
@@ -80,7 +69,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
       title: 'Liste des Contacts',
       body: Column(
         children: [
-          // UPDATED: Flat tab selector with underlines
+          // Tab selector
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -164,81 +153,125 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
               ],
             ),
           ),
-          // Contacts list
+          // Contacts/Prospects list
           Expanded(
-            child: FutureBuilder<List<Contact>>(
-              future: _contactsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Erreur de chargement'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Aucun contact trouvé',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 18,
-                      ),
-                    ),
-                  );
-                } else {
-                  final allContacts = snapshot.data!;
-                  final filteredContacts = _filterContactsByType(allContacts);
-                  
-                  if (filteredContacts.isEmpty) {
-                    return Center(
-                      child: Text(
-                        _selectedType == ContactType.client
-                            ? 'Aucun client trouvé'
-                            : 'Aucun prospect trouvé',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 18,
-                        ),
-                      ),
-                    );
-                  }
-                  
-                  return ListView.separated(
-                    padding: EdgeInsets.all(16),
-                    itemCount: filteredContacts.length,
-                    itemBuilder: (context, index) {
-                      final contact = filteredContacts[index];
-                      return ContactItem(
-                        contact: contact,
-                        onEdit: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ContactFormScreen(
-                                contact: contact,
-                                onEdit: (updated) async {
-                                  await _repository.updateContact(updated);
-                                  _loadContacts();
-                                },
-                                onDelete: (id) async {
-                                  await _repository.deleteContact(id);
-                                  _loadContacts();
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                        onDelete: () async {
-                          await _repository.deleteContact(contact.id);
-                          _loadContacts();
-                        },
-                      );
-                    },
-                    separatorBuilder: (_, __) => SizedBox(height: 8),
-                  );
-                }
-              },
-            ),
+            child: _selectedType == ContactType.client
+                ? _buildClientsList()
+                : _buildProspectsList(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildClientsList() {
+    return FutureBuilder<List<Contact>>(
+      future: _contactsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erreur de chargement'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'Aucun client trouvé',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 18,
+              ),
+            ),
+          );
+        } else {
+          final contacts = snapshot.data!;
+          return ListView.separated(
+            padding: EdgeInsets.all(16),
+            itemCount: contacts.length,
+            itemBuilder: (context, index) {
+              final contact = contacts[index];
+              return ContactItem(
+                contact: contact,
+                onEdit: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ContactFormScreen(
+                        contact: contact,
+                        onEdit: (updated) async {
+                          await _contactRepository.updateContact(updated);
+                          _loadData();
+                        },
+                        onDelete: (id) async {
+                          await _contactRepository.deleteContact(id);
+                          _loadData();
+                        },
+                      ),
+                    ),
+                  );
+                },
+                onDelete: () async {
+                  await _contactRepository.deleteContact(contact.id);
+                  _loadData();
+                },
+              );
+            },
+            separatorBuilder: (_, __) => SizedBox(height: 8),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildProspectsList() {
+    return FutureBuilder<List<Prospect>>(
+      future: _prospectsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erreur de chargement'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'Aucun prospect trouvé',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 18,
+              ),
+            ),
+          );
+        } else {
+          final prospects = snapshot.data!;
+          return ListView.separated(
+            padding: EdgeInsets.all(16),
+            itemCount: prospects.length,
+            itemBuilder: (context, index) {
+              final prospect = prospects[index];
+              return ProspectItem(
+                prospect: prospect,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ProspectDetailFormScreen(
+                        prospect: prospect,
+                        onEdit: (updated) async {
+                          await _prospectRepository.updateProspect(updated);
+                          _loadData();
+                        },
+                        onDelete: (id) async {
+                          await _prospectRepository.deleteProspect(id);
+                          _loadData();
+                        },
+                        interlocuteurs: [],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            separatorBuilder: (_, __) => SizedBox(height: 8),
+          );
+        }
+      },
     );
   }
 }

@@ -2,6 +2,7 @@
 
 import 'contacts_repository.dart';
 import '../models/contact.dart';
+import '../models/prospect.dart';
 
 class GetContactsUseCase {
   final ContactsRepository repository;
