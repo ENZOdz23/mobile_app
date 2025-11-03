@@ -10,6 +10,9 @@ import '../../../shared/components/base_scaffold.dart';
 import '../../../core/config/routes.dart';
 import 'contact_form_screen.dart';
 import 'widgets/contact_item.dart';
+import 'widgets/prospect_item.dart';
+import 'prospect_detail_form_screen.dart';
+import '../models/prospect.dart';
 
 class ContactsListScreen extends StatefulWidget {
   @override
@@ -66,6 +69,25 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     return contacts.where((contact) => contact.type == _selectedType).toList();
   }
 
+  // ✅ ADD THIS HELPER METHOD to convert Contact to Prospect
+  Prospect _contactToProspect(Contact contact) {
+    return Prospect(
+      id: contact.id,
+      entreprise: contact.name,
+      phoneNumber: contact.phoneNumber,
+      email: contact.email,
+      wilaya: '',
+      commune: '',
+      categorie: '',
+      formeLegale: '',
+      secteur: '',
+      sousSecteur: '',
+      nif: '',
+      registreCommerce: '',
+      status: ProspectStatus.prospect,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -80,7 +102,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
       title: 'Liste des Contacts',
       body: Column(
         children: [
-          // UPDATED: Flat tab selector with underlines
+          // Tab selector
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -206,30 +228,59 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
                     itemCount: filteredContacts.length,
                     itemBuilder: (context, index) {
                       final contact = filteredContacts[index];
-                      return ContactItem(
-                        contact: contact,
-                        onEdit: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ContactFormScreen(
-                                contact: contact,
-                                onEdit: (updated) async {
-                                  await _repository.updateContact(updated);
-                                  _loadContacts();
-                                },
-                                onDelete: (id) async {
-                                  await _repository.deleteContact(id);
-                                  _loadContacts();
-                                },
+                      
+                      // ✅ MODIFIED: Different UI based on selected type
+                      if (_selectedType == ContactType.prospect) {
+                        // PROSPECT TAB: Use ProspectItem and ProspectDetailFormScreen
+                        final prospect = _contactToProspect(contact);
+                        return ProspectItem(
+                          prospect: prospect,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ProspectDetailFormScreen(
+                                  prospect: prospect,
+                                  onEdit: (updated) async {
+                                    // TODO: Update prospect logic
+                                    _loadContacts();
+                                  },
+                                  onDelete: (id) async {
+                                    await _repository.deleteContact(id);
+                                    _loadContacts();
+                                  },
+                                  interlocuteurs: [], // TODO: Load related contacts
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        onDelete: () async {
-                          await _repository.deleteContact(contact.id);
-                          _loadContacts();
-                        },
-                      );
+                            );
+                          },
+                        );
+                      } else {
+                        // CLIENT TAB: Use ContactItem and ContactFormScreen (original)
+                        return ContactItem(
+                          contact: contact,
+                          onEdit: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ContactFormScreen(
+                                  contact: contact,
+                                  onEdit: (updated) async {
+                                    await _repository.updateContact(updated);
+                                    _loadContacts();
+                                  },
+                                  onDelete: (id) async {
+                                    await _repository.deleteContact(id);
+                                    _loadContacts();
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          onDelete: () async {
+                            await _repository.deleteContact(contact.id);
+                            _loadContacts();
+                          },
+                        );
+                      }
                     },
                     separatorBuilder: (_, __) => SizedBox(height: 8),
                   );
