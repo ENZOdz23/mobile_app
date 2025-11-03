@@ -26,4 +26,22 @@ class ContactValidator {
     }
     return null;
   }
+
+  /// Validates the contact's phone number. Returns a localized-ish message when invalid.
+  /// This allows international formats with optional leading +, spaces, dashes and parentheses.
+  static String? validatePhoneNumber(String? phone) {
+    if (phone == null || phone.trim().isEmpty) {
+      return 'Phone number is required';
+    }
+    // Accept digits, spaces, dashes, parentheses and optional leading +.
+    final digitsOnly = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.length != 10) {
+      return 'Invalid phone number';
+    }
+    final phoneRegExp = RegExp(r'^\+?[0-9\s\-\(\)]+$');
+    if (!phoneRegExp.hasMatch(phone)) {
+      return 'Invalid phone number';
+    }
+    return null;
+  }
 }
