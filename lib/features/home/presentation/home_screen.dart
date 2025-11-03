@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import '../domain/get_offers_use_case.dart';
 import '../domain/get_banners_use_case.dart';
@@ -9,8 +11,11 @@ import 'widgets/banner_carousel.dart';
 import 'widgets/offer_card.dart';
 import '../../../shared/components/base_scaffold.dart';
 import '../../../core/themes/app_theme.dart';
+import '../../../core/config/routes.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -76,7 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       currentIndex: 0,
       onNavTap: (int index) {
-        // Navigation logic here
+        if (index == 1) {
+          // Contacts tab
+          Navigator.pushReplacementNamed(context, AppRoutes.contacts);
+        }
+        // Add other navigation cases as needed
       },
     );
   }

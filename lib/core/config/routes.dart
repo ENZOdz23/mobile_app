@@ -6,6 +6,7 @@ import '../../features/authentication/presentation/otp_screen.dart';
 //import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/entreprise_state/entreprise_state.dart';
+import '../../features/contacts/presentation/contacts_list_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
@@ -13,6 +14,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String home = '/home';
   static const String changeEntrepriseState = '/change-entreprise-state';
+  static const String contacts = '/contacts';  
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -34,6 +36,9 @@ class AppRoutes {
           getStatesUseCase: GetStatesUseCase(CompanyRepositoryImpl()),
           updateCompanyStateUseCase: UpdateCompanyStateUseCase(CompanyRepositoryImpl()),
         ));
+      case contacts:  // Route for contacts
+        return MaterialPageRoute(builder: (_) => ContactsListScreen());
+
       // Add other routes as needed
 
       default:

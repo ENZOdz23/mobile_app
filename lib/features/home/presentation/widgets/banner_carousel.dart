@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class BannerCarousel extends StatefulWidget {
   final List<String> imageUrls;
 
-  const BannerCarousel({required this.imageUrls, Key? key}) : super(key: key);
+  const BannerCarousel({required this.imageUrls, super.key});
 
   @override
   State<BannerCarousel> createState() => _BannerCarouselState();

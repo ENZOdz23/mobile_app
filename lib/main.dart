@@ -29,7 +29,7 @@ void main() async {
 }
 
 class ProspectraApp extends StatelessWidget {
-  const ProspectraApp({Key? key}) : super(key: key);
+  const ProspectraApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class ProspectraApp extends StatelessWidget {
         return MediaQuery(
           // Prevent text scaling beyond reasonable limits
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.3),
+            textScaler: TextScaler.linear(MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.3)),
           ),
           child: child!,
         );
