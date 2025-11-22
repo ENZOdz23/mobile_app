@@ -1,10 +1,18 @@
 // lib/features/authentication/presentation/screens/otp_screen.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
-import '../../../../shared/validators/otp_validator.dart';
+import '../models/otp.dart';
+import '../domain/verify_otp_usecase.dart';
+import '../domain/resend_otp_usecase.dart';
+import '../data/otp_repository_impl.dart';
+
+// Reusable widgetss
+import 'widgets/otp_field.dart';
+import 'widgets/otp_phone_box.dart';
+import 'widgets/otp_error_box.dart';
+import 'widgets/otp_verify_button.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -17,42 +25,48 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   final int _otpLength = 5;
-  final List<TextEditingController> _otpControllers = [];
-  final List<FocusNode> _focusNodes = [];
+
+  late List<TextEditingController> _controllers;
+  late List<FocusNode> _focusNodes;
 
   bool _isLoading = false;
-  String? _errorMessage;
   bool _canResend = false;
   int _resendTimer = 30;
   Timer? _timer;
-  int _attemptCount = 0;
+
+  String? _errorMessage;
+  int _attempts = 0;
   final int _maxAttempts = 3;
+
+  // Use cases
+  late final VerifyOtpUseCase _verifyOtpUseCase;
+  late final ResendOtpUseCase _resendOtpUseCase;
 
   @override
   void initState() {
     super.initState();
 
     // Initialize controllers and focus nodes
-    for (int i = 0; i < _otpLength; i++) {
-      _otpControllers.add(TextEditingController());
-      _focusNodes.add(FocusNode());
-    }
+    _controllers = List.generate(_otpLength, (_) => TextEditingController());
+    _focusNodes = List.generate(_otpLength, (_) => FocusNode());
 
-    // Start resend timer
+    // Initialize repository and use cases
+    final repository = OtpRepositoryImpl();
+    _verifyOtpUseCase = VerifyOtpUseCase(repository);
+    _resendOtpUseCase = ResendOtpUseCase(repository);
+
     _startResendTimer();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    for (var controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
+    for (final c in _controllers) c.dispose();
+    for (final f in _focusNodes) f.dispose();
     super.dispose();
   }
+
+  // ------------------------ TIMER ------------------------
 
   void _startResendTimer() {
     setState(() {
@@ -73,29 +87,24 @@ class _OtpScreenState extends State<OtpScreen> {
     });
   }
 
-  String _getOtpCode() {
-    return _otpControllers.map((controller) => controller.text).join();
-  }
+  // ------------------------ OTP HELPERS ------------------------
+
+  String _getOtp() => _controllers.map((c) => c.text).join();
 
   void _clearOtp() {
-    for (var controller in _otpControllers) {
-      controller.clear();
-    }
+    for (var c in _controllers) c.clear();
     _focusNodes[0].requestFocus();
   }
 
-  Future<void> _verifyOTP() async {
-    final otpCode = _getOtpCode();
+  // ------------------------ VERIFY OTP ------------------------
 
-    // Validate OTP
-    final validationError = OtpValidator.validateOtp(
-      otpCode,
-      length: _otpLength,
-    );
-    if (validationError != null) {
-      setState(() {
-        _errorMessage = validationError;
-      });
+  Future<void> _verifyOTP() async {
+    final otpCode = _getOtp();
+
+    // Validate OTP format
+    final error = otpCode.length == _otpLength ? null : 'Code OTP invalide';
+    if (error != null) {
+      setState(() => _errorMessage = error);
       return;
     }
 
@@ -105,50 +114,38 @@ class _OtpScreenState extends State<OtpScreen> {
     });
 
     try {
-      // TODO: Implement API call to verify OTP
-      // API GET récupère l'OTP - Méthode Vérif FRONT
-
-      // Simulated delay for demo
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Check if OTP is valid (simulated)
-      // In real implementation, compare with backend response
-      bool isValid = true; // Replace with actual validation
+      final otp = Otp(code: otpCode, phoneNumber: widget.phoneNumber);
+      final isValid = await _verifyOtpUseCase(otp);
 
       if (isValid) {
-        // Navigate to main app
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
-        _attemptCount++;
-
-        if (_attemptCount >= _maxAttempts) {
+        _attempts++;
+        if (_attempts >= _maxAttempts) {
           setState(() {
             _errorMessage = 'Compte temporairement bloqué pendant 1 heure.';
           });
-          // TODO: Implement account lockout
         } else {
           setState(() {
             _errorMessage =
                 'Code incorrect ou expiré. Veuillez ressayer. '
-                '(${_maxAttempts - _attemptCount} tentatives restantes)';
+                '(${_maxAttempts - _attempts} tentatives restantes)';
           });
           _clearOtp();
         }
       }
-    } catch (e) {
+    } catch (_) {
       setState(() {
         _errorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
       });
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
+
+  // ------------------------ RESEND OTP ------------------------
 
   Future<void> _resendOTP() async {
     if (!_canResend) return;
@@ -159,11 +156,7 @@ class _OtpScreenState extends State<OtpScreen> {
     });
 
     try {
-      // TODO: Implement API call to resend OTP
-      // API GET récupère l'OTP
-
-      // Simulated delay for demo
-      await Future.delayed(const Duration(seconds: 1));
+      await _resendOtpUseCase(widget.phoneNumber);
 
       _clearOtp();
       _startResendTimer();
@@ -171,80 +164,49 @@ class _OtpScreenState extends State<OtpScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Un nouveau code a été envoyé'),
+            content: Text("Un nouveau code a été envoyé."),
             backgroundColor: AppColors.accent,
           ),
         );
       }
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        _errorMessage = 'Impossible de renvoyer le code. Veuillez réessayer.';
+        _errorMessage = "Impossible de renvoyer le code. Veuillez réessayer.";
       });
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Widget _buildOtpField(int index) {
-    return Container(
-      width: 50,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: _errorMessage != null
-              ? AppColors.error
-              : _otpControllers[index].text.isNotEmpty
-              ? AppColors.accent
-              : Colors.grey[300]!,
-          width: 2,
-        ),
-      ),
-      child: TextField(
-        controller: _otpControllers[index],
-        focusNode: _focusNodes[index],
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        style: Theme.of(
-          context,
-        ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          counterText: '',
-        ),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onChanged: (value) {
-          setState(() {
-            _errorMessage = null;
-          });
+  // ------------------------ BUILD OTP FIELD ------------------------
 
-          if (value.isNotEmpty) {
-            // Move to next field
-            if (index < _otpLength - 1) {
-              _focusNodes[index + 1].requestFocus();
-            } else {
-              // Last field, hide keyboard and verify
-              _focusNodes[index].unfocus();
-              _verifyOTP();
-            }
+  Widget _buildOtpBox(int index) {
+    return OtpField(
+      controller: _controllers[index],
+      focusNode: _focusNodes[index],
+      hasError: _errorMessage != null,
+      onChanged: (value) {
+        setState(() => _errorMessage = null);
+
+        if (value.isNotEmpty) {
+          if (index < _otpLength - 1) {
+            _focusNodes[index + 1].requestFocus();
+          } else {
+            _focusNodes[index].unfocus();
+            _verifyOTP();
           }
-        },
-        onTap: () {
-          // Select all text when tapped
-          _otpControllers[index].selection = TextSelection(
-            baseOffset: 0,
-            extentOffset: _otpControllers[index].text.length,
-          );
-        },
-      ),
+        }
+      },
+      onTap: () {
+        _controllers[index].selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _controllers[index].text.length,
+        );
+      },
     );
   }
+
+  // ------------------------ UI ------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -253,183 +215,62 @@ class _OtpScreenState extends State<OtpScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+        leading: BackButton(
+          color: Theme.of(context).colorScheme.onSurface,
           onPressed: () {
-            // Clear any ongoing processes
             _timer?.cancel();
-
-            // Navigate back properly
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
+            Navigator.pop(context);
           },
         ),
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 20),
-
-                // Mobilis Logo
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      16,
-                    ), // Adjust radius as you like
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 80,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset('assets/images/logo.png', height: 80),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Suivez et optimisez vos ventes grâce à notre plateforme.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 40),
+              OtpPhoneBox(phone: widget.phoneNumber),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(_otpLength, _buildOtpBox),
+              ),
+              if (_errorMessage != null) ...[
                 const SizedBox(height: 16),
-
-                // Subtitle
-                Text(
-                  'Suivez et optimisez vos ventes à tout moment grâce à notre plateforme en ligne.',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 40),
-
-                // Phone number display
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundLight,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.phoneNumber,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // OTP input fields
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(
-                    _otpLength,
-                    (index) => _buildOtpField(index),
-                  ),
-                ),
-
-                // Error message
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: AppColors.error,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: TextStyle(
-                              color: AppColors.error,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 32),
-
-                // Verify button
-                ElevatedButton(
-                  onPressed: (_isLoading || _attemptCount >= _maxAttempts)
-                      ? null
-                      : _verifyOTP,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    foregroundColor: AppColors.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isLoading
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.onPrimary,
-                            ),
-                          ),
-                        )
-                      : Text('Confirmer', style: AppTextStyles.button),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Resend link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Pas encore inscrit ?  ',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    ),
-                    TextButton(
-                      onPressed: _canResend && !_isLoading ? _resendOTP : null,
-                      child: Text(
-                        _canResend
-                            ? 'Contactez-nous.'
-                            : 'Renvoyer dans $_resendTimer s',
-                        style: TextStyle(
-                          color: _canResend ? AppColors.primary : Colors.grey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
+                OtpErrorBox(message: _errorMessage!),
               ],
-            ),
+              const SizedBox(height: 32),
+              OtpVerifyButton(
+                loading: _isLoading,
+                disabled: _attempts >= _maxAttempts,
+                onPressed: _verifyOTP,
+              ),
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: _canResend && !_isLoading ? _resendOTP : null,
+                child: Text(
+                  _canResend
+                      ? "Renvoyer le code"
+                      : "Renvoyer dans $_resendTimer s",
+                  style: TextStyle(
+                    color: _canResend ? AppColors.primary : Colors.grey,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
