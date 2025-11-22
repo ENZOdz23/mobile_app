@@ -1,7 +1,7 @@
 name: crm_sales_performance_mobilis
-description: "A new Flutter project."
+description: "A CRM application for sales performance management with contact and prospect management."
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0+1
 
 environment:
   sdk: ^3.9.2
@@ -9,8 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.8
   url_launcher: ^6.1.7
   table_calendar: ^3.0.0
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
