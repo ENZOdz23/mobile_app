@@ -1,80 +1,107 @@
 // lib/features/contacts/presentation/widgets/contact_item.dart
 
 import 'package:flutter/material.dart';
+import '../../../../core/themes/app_theme.dart';
 import '../../models/contact.dart';
 
 class ContactItem extends StatelessWidget {
   final Contact contact;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback onTap;
 
   const ContactItem({
     Key? key,
     required this.contact,
-    required this.onEdit,
-    required this.onDelete,
+    required this.onTap,
   }) : super(key: key);
+
+  String getInitials(String name) {
+    if (name.isEmpty) return "?";
+    var parts = name.trim().split(" ");
+    if (parts.length == 1) {
+      return parts[0][0].toUpperCase();
+    }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isProspect = contact.type == ContactType.prospect;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      color: theme.colorScheme.surface,
-      elevation: 3,
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        leading: CircleAvatar(
-          backgroundColor: isProspect
-              ? theme.colorScheme.secondary
-              : theme.colorScheme.primary,
-          child: Text(
-            contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-        title: Text(
-          contact.name,
-          style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (contact.company.isNotEmpty)
-              Text(
-                contact.company,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 13,
+      elevation: 1,
+      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: EdgeInsets.all(14),
+          child: Row(
+            children: [
+              // Avatar with initials
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: isProspect
+                    ? AppColors.secondary
+                    : AppColors.primary,
+                child: Text(
+                  getInitials(contact.name),
+                  style: TextStyle(
+                    color: AppColors.onPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            Text(
-              'Mobile: ${contact.phoneNumber}',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 13,
+              SizedBox(width: 14),
+              // Contact name, company, and phone
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      contact.name,
+                      style: AppTextStyles.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.secondary,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (contact.company.isNotEmpty) ...[
+                      SizedBox(height: 4),
+                      Text(
+                        contact.company,
+                        style: AppTextStyles.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    SizedBox(height: 4),
+                    Text(
+                      'Mobile: ${contact.phoneNumber}',
+                      style: AppTextStyles.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                        fontSize: 13,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.info_outline),
-              color: isProspect
-                  ? theme.colorScheme.secondary
-                  : theme.colorScheme.primary,
-              onPressed: onEdit,
-            ),
-            IconButton(
-              icon: Icon(Icons.delete_outline),
-              color: Colors.red,
-              onPressed: onDelete,
-            ),
-          ],
+              // Chevron icon
+              Icon(
+                Icons.chevron_right,
+                color: Colors.grey[400],
+                size: 24,
+              ),
+            ],
+          ),
         ),
       ),
     );

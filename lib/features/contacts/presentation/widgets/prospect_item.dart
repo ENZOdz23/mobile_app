@@ -9,10 +9,10 @@ class ProspectItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const ProspectItem({
-    Key? key,
+    super.key,
     required this.prospect,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   String getInitials(String name) {
     if (name.isEmpty) return "?";
