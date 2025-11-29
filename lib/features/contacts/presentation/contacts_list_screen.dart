@@ -71,6 +71,12 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
         if (index == 0) {
           Navigator.pushReplacementNamed(context, AppRoutes.home);
         }
+        // if (index == 2) {
+        //   Navigator.pushReplacementNamed(context, AppRoutes.calendar);
+        // }
+        if (index == 3) {
+          Navigator.pushReplacementNamed(context, AppRoutes.more);
+        }
       },
       title: 'Liste des Contacts',
       body: Column(
