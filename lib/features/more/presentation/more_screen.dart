@@ -42,15 +42,15 @@ class MoreScreenView extends StatelessWidget {
       title: 'Plus',
       currentIndex: 3,
       onNavTap: (index) {
-        if (index == 0) {
+        if (index == 2) {
           // Home tab
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          Navigator.pushReplacementNamed(context, AppRoutes.offres);
         } else if (index == 1) {
           // Contacts tab
           Navigator.pushReplacementNamed(context, AppRoutes.contacts);
-        } else if (index == 2) {
-          // Calendar tab (if you have it)
-          Navigator.pushReplacementNamed(context, AppRoutes.calendar);
+        } else if (index == 0) {
+          // home
+          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
         }
         // index == 3 is current screen (More), so no action needed
       },

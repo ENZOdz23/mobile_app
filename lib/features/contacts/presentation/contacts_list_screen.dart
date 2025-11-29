@@ -17,6 +17,7 @@ import '../domain/get_prospects_use_case.dart';
 import '../domain/prospect_repository.dart';
 import '../data/prospect_local_data_source.dart';
 import '../data/prospect_repository_impl.dart';
+import '../../home/presentation/home_screen.dart';
 
 enum ContactType { client, prospect }
 
@@ -68,12 +69,12 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     return BaseScaffold(
       currentIndex: 1,
       onNavTap: (index) {
-        if (index == 0) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        if (index == 2) {
+          Navigator.pushReplacementNamed(context, AppRoutes.offres);
         }
-        // if (index == 2) {
-        //   Navigator.pushReplacementNamed(context, AppRoutes.calendar);
-        // }
+        if (index == 0) {
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+        }
         if (index == 3) {
           Navigator.pushReplacementNamed(context, AppRoutes.more);
         }
