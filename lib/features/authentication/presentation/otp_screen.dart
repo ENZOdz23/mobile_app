@@ -9,10 +9,10 @@ import '../domain/resend_otp_usecase.dart';
 import '../data/otp_repository_impl.dart';
 
 // Reusable widgetss
-import 'widgets/otp_field.dart';
-import 'widgets/otp_phone_box.dart';
-import 'widgets/otp_error_box.dart';
-import 'widgets/otp_verify_button.dart';
+import 'widgets/opt/otp_field.dart';
+import 'widgets/opt/otp_phone_box.dart';
+import 'widgets/opt/otp_error_box.dart';
+import 'widgets/opt/otp_verify_button.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -119,7 +119,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
       if (isValid) {
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/dashboard');
         }
       } else {
         _attempts++;

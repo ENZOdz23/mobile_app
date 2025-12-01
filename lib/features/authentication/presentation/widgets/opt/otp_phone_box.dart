@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/themes/app_theme.dart';
+import '../../../../../core/themes/app_theme.dart';
 
 class OtpPhoneBox extends StatelessWidget {
   final String phone;

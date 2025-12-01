@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "C:/Users/hp/Desktop/Semester5/MobDev/repo/mobile_app/linux"
+    "cmake.sourceDirectory": "C:/Users/hp/Desktop/Semester5/MobDev/repo/mobile_app/linux",
+    "files.associations": {
+        "xlocale": "cpp"
+    }
 }
