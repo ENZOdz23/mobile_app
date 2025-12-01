@@ -15,6 +15,11 @@ import '../../features/more/presentation/screens/privacy_screen.dart';
 import '../../features/more/presentation/screens/help_screen.dart';
 import '../../features/more/presentation/screens/about_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/home/presentation/screens/kpis_screen.dart';
+import '../../features/home/presentation/screens/goals_screen.dart';
+import '../../features/home/presentation/screens/recent_activities_screen.dart';
+import '../../features/home/presentation/screens/add_prospect_screen.dart';
+import '../../features/home/presentation/screens/plan_meeting_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
@@ -31,6 +36,11 @@ class AppRoutes {
   static const String help = '/help';
   static const String about = '/about';
   static const String notifications = '/notifications';
+  static const String kpis = '/kpis';
+  static const String goals = '/goals';
+  static const String recentActivities = '/recent-activities';
+  static const String addProspect = '/add-prospect';
+  static const String planMeeting = '/plan-meeting';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -86,6 +96,23 @@ class AppRoutes {
 
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+
+      case kpis:
+        return MaterialPageRoute(builder: (_) => const KPIsScreen());
+
+      case goals:
+        return MaterialPageRoute(builder: (_) => const GoalsScreen());
+
+      case recentActivities:
+        return MaterialPageRoute(
+          builder: (_) => const RecentActivitiesScreen(),
+        );
+
+      case addProspect:
+        return MaterialPageRoute(builder: (_) => const AddProspectScreen());
+
+      case planMeeting:
+        return MaterialPageRoute(builder: (_) => const PlanMeetingScreen());
 
       default:
         return MaterialPageRoute(

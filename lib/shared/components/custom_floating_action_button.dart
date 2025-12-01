@@ -15,14 +15,12 @@ class CustomFloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: onPressed,
+      elevation: 4.0,
       backgroundColor: const Color(0xFF4CAF50),
       child: AnimatedRotation(
         turns: isExpanded ? 0.125 : 0,
         duration: const Duration(milliseconds: 200),
-        child: Icon(
-          isExpanded ? Icons.close : Icons.add,
-          color: Colors.white,
-        ),
+        child: Icon(isExpanded ? Icons.close : Icons.add, color: Colors.white),
       ),
     );
   }
