@@ -205,16 +205,20 @@ class _ContactsListScreenContent extends StatelessWidget {
               return ContactItem(
                 contact: contact,
                 onTap: () {
+                  // Pass contact ID instead of contact object
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ContactFormScreen(
-                        contact: contact,
-                        onEdit: (updated) async {
-                          context.read<ContactsCubit>().updateContact(updated);
-                        },
-                        onDelete: (id) async {
-                          context.read<ContactsCubit>().deleteContact(id);
-                        },
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<ContactsCubit>(),
+                        child: ContactFormScreen(
+                          contactId: contact.id, // Changed: pass ID
+                          onEdit: (updated) {
+                            context.read<ContactsCubit>().updateContact(updated);
+                          },
+                          onDelete: (id) {
+                            context.read<ContactsCubit>().deleteContact(id);
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -260,35 +264,32 @@ class _ContactsListScreenContent extends StatelessWidget {
               return ProspectItem(
                 prospect: prospect,
                 onTap: () {
-                  // Get interlocuteurs for this prospect
-                  final contactsCubit = context.read<ContactsCubit>();
-                  final interlocuteurs = contactsCubit
-                      .getInterlocuteursForProspect(prospect.entreprise);
-
+                  // Pass prospect ID instead of prospect object
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<ContactsCubit>(),
-                        child: BlocProvider.value(
-                          value: context.read<ProspectsCubit>(),
-                          child: ProspectDetailFormScreen(
-                            prospect: prospect,
-                            onEdit: (updated) async {
-                              context.read<ProspectsCubit>().updateProspect(
-                                updated,
-                              );
-                            },
-                            onDelete: (id) async {
-                              context.read<ProspectsCubit>().deleteProspect(id);
-                            },
-                            onConvertToClient: () async {
-                              await context
-                                  .read<ProspectsCubit>()
-                                  .convertProspectToClient(prospect.id);
-                              Navigator.of(context).pop();
-                            },
-                            interlocuteurs: interlocuteurs,
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: context.read<ContactsCubit>(),
                           ),
+                          BlocProvider.value(
+                            value: context.read<ProspectsCubit>(),
+                          ),
+                        ],
+                        child: ProspectDetailFormScreen(
+                          prospectId: prospect.id, // Changed: pass ID
+                          onEdit: (updated) {
+                            context.read<ProspectsCubit>().updateProspect(updated);
+                          },
+                          onDelete: (id) {
+                            context.read<ProspectsCubit>().deleteProspect(id);
+                          },
+                          onConvertToClient: () async {
+                            await context
+                                .read<ProspectsCubit>()
+                                .convertProspectToClient(prospect.id);
+                            Navigator.of(context).pop();
+                          },
                         ),
                       ),
                     ),
