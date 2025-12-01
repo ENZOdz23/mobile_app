@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'custom_app_bar.dart';
 import 'custom_bottom_nav_bar.dart';
+import 'custom_floating_action_button.dart';
 
 class BaseScaffold extends StatefulWidget {
   final String title;
@@ -35,7 +36,6 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     setState(() {
       _showMenu = false;
     });
-    // Handle navigation or action based on item
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$item sélectionné')),
     );
@@ -80,16 +80,11 @@ class _BaseScaffoldState extends State<BaseScaffold> {
         currentIndex: widget.currentIndex,
         onTap: widget.onNavTap,
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFloatingActionButton(
         onPressed: _toggleMenu,
-        backgroundColor: Theme.of(context).primaryColor,
-        child: AnimatedRotation(
-          turns: _showMenu ? 0.125 : 0,
-          duration: const Duration(milliseconds: 200),
-          child: Icon(_showMenu ? Icons.close : Icons.add),
-        ),
+        isExpanded: _showMenu,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -112,7 +107,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Theme.of(context).primaryColor),
+            Icon(icon, color: const Color(0xFF4CAF50)),
             const SizedBox(width: 16),
             Text(
               title,

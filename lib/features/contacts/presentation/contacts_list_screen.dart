@@ -17,6 +17,7 @@ import '../domain/get_prospects_use_case.dart';
 import '../domain/prospect_repository.dart';
 import '../data/prospect_local_data_source.dart';
 import '../data/prospect_repository_impl.dart';
+import '../../home/presentation/home_screen.dart';
 
 enum ContactType { client, prospect }
 
@@ -55,6 +56,12 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     });
   }
 
+  // Get contacts (interlocuteurs) for a specific prospect company
+  Future<List<Contact>> _getInterlocuteursForProspect(String prospectCompany) async {
+    final allContacts = await _contactsFuture;
+    return allContacts.where((contact) => contact.company == prospectCompany).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -62,8 +69,14 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     return BaseScaffold(
       currentIndex: 1,
       onNavTap: (index) {
+        if (index == 2) {
+          Navigator.pushReplacementNamed(context, AppRoutes.offres);
+        }
         if (index == 0) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+        }
+        if (index == 3) {
+          Navigator.pushReplacementNamed(context, AppRoutes.more);
         }
       },
       title: 'Liste des Contacts',
@@ -191,7 +204,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
               final contact = contacts[index];
               return ContactItem(
                 contact: contact,
-                onEdit: () {
+                onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => ContactFormScreen(
@@ -207,10 +220,6 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
                       ),
                     ),
                   );
-                },
-                onDelete: () async {
-                  await _contactRepository.deleteContact(contact.id);
-                  _loadData();
                 },
               );
             },
@@ -248,7 +257,10 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
               final prospect = prospects[index];
               return ProspectItem(
                 prospect: prospect,
-                onTap: () {
+                onTap: () async {
+                  // Fetch interlocuteurs for this prospect
+                  final interlocuteurs = await _getInterlocuteursForProspect(prospect.entreprise);
+                  
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => ProspectDetailFormScreen(
@@ -261,7 +273,14 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
                           await _prospectRepository.deleteProspect(id);
                           _loadData();
                         },
-                        interlocuteurs: [],
+                        onConvertToClient: () async {
+                          // Delete the prospect and reload
+                          await _prospectRepository.deleteProspect(prospect.id);
+                          _loadData();
+                          Navigator.of(context).pop();
+                        },
+                        interlocuteurs: interlocuteurs,
+                        contactRepository: _contactRepository,
                       ),
                     ),
                   );

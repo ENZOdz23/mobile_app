@@ -1,7 +1,6 @@
 // lib/features/contacts/data/contacts_repository_impl.dart
 
 import '../models/contact.dart';
-import '../models/prospect.dart';
 import 'contacts_local_data_source.dart';
 import '../domain/contacts_repository.dart';
 
