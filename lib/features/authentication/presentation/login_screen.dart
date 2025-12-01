@@ -2,8 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/themes/app_theme.dart';
+import '/../../../core/themes/app_theme.dart';
 import '../../../../shared/validators/phone_validator.dart';
+
+import '../data/login_repository_impl.dart';
+import '../domain/request_otp_usecase.dart';
+import '../models/login.dart';
+
+// Widgets
+import 'widgets/login/login_phone_field.dart';
+import 'widgets/login/login_error_box.dart';
+import 'widgets/login/login_request_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,11 +26,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  // Use case
+  late final RequestOtpUseCase _requestOtpUseCase;
 
   @override
   void dispose() {
     _phoneController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final repository = LoginRepositoryImpl();
+    _requestOtpUseCase = RequestOtpUseCase(repository);
   }
 
   Future<void> _requestOTP() async {
@@ -35,33 +53,24 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      // TODO: Implement API call to verify Mobilis number and request OTP
-      // API GET récupère l'OTP de la DSSI
-      // Verify if phone number exists in database and belongs to a commercial
+      final phone = _phoneController.text;
+      final login = Login(phoneNumber: phone);
+      await _requestOtpUseCase.call(login.phoneNumber);
 
-      // Simulated delay for demo
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Navigate to OTP screen
       if (mounted) {
-        Navigator.pushNamed(context, '/otp', arguments: _phoneController.text);
+        Navigator.pushNamed(context, '/otp', arguments: phone);
       }
     } catch (e) {
-      setState(() {
-        _errorMessage =
-            'Seuls les numéros MOBILIS sont autorisés à accéder à cette application.';
-      });
+      // Log and show the actual server/network error to help debugging
+      // The repository throws Exceptions with server messages when available.
+      debugPrint('requestOtp error: $e');
+      final msg = e.toString().replaceFirst('Exception: ', '');
+      setState(() => _errorMessage = msg);
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -122,123 +131,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Phone number input with country code
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: _errorMessage != null
-                                ? AppColors.error
-                                : Colors.grey[300]!,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            // Country flag and code
-                            // Container(
-                            //   padding: const EdgeInsets.symmetric(
-                            //     horizontal: 16,
-                            //     vertical: 16,
-                            //   ),
-                            //   decoration: BoxDecoration(
-                            //     border: Border(
-                            //       right: BorderSide(color: Colors.grey[300]!),
-                            //     ),
-                            //   ),
-                            //   child: Row(
-                            //     children: [
-                            //       // Algeria flag placeholder
-                            //       Container(
-                            //         width: 24,
-                            //         height: 16,
-                            //         decoration: BoxDecoration(
-                            //           color: AppColors.primary,
-                            //           borderRadius: BorderRadius.circular(2),
-                            //         ),
-                            //       ),
-                            //       const SizedBox(width: 8),
-                            //       Text(
-                            //         '+213',
-                            //         style: Theme.of(context).textTheme.bodyLarge
-                            //             ?.copyWith(fontWeight: FontWeight.w600),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-
-                            // Phone input field
-                            Expanded(
-                              child: TextFormField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                decoration: InputDecoration(
-                                  labelText: 'Numéro de téléphone',
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  errorStyle: const TextStyle(height: 0),
-                                ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(10),
-                                ],
-                                validator: PhoneValidator.validatePhoneNumber,
-                                onChanged: (value) {
-                                  if (_errorMessage != null) {
-                                    setState(() {
-                                      _errorMessage = null;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+                      // Phone field (extracted widget)
+                      LoginPhoneField(
+                        controller: _phoneController,
+                        hasError: _errorMessage != null,
+                        validator: PhoneValidator.validatePhoneNumber,
+                        onChanged: (value) {
+                          if (_errorMessage != null)
+                            setState(() => _errorMessage = null);
+                        },
                       ),
 
                       // Error message
                       if (_errorMessage != null) ...[
                         const SizedBox(height: 8),
-                        Text(
-                          _errorMessage!,
-                          style: TextStyle(
-                            color: AppColors.error,
-                            fontSize: 12,
-                          ),
-                        ),
+                        LoginErrorBox(message: _errorMessage!),
                       ],
 
                       const SizedBox(height: 30),
 
-                      // Confirm button
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _requestOTP,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: AppColors.onBackgroundDark,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: _isLoading
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.onPrimary,
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                'Demander le code OTP',
-                                style: AppTextStyles.button,
-                              ),
+                      // Confirm button (extracted)
+                      LoginRequestButton(
+                        loading: _isLoading,
+                        onPressed: _requestOTP,
                       ),
                     ],
                   ),
