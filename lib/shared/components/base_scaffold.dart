@@ -9,13 +9,15 @@ class BaseScaffold extends StatefulWidget {
   final String title;
   final Widget body;
   final int currentIndex;
-  final ValueChanged<int> onNavTap;
+  final ValueChanged<int>? onNavTap;
+  final bool showBottomNav;
 
   const BaseScaffold({
     required this.title,
     required this.body,
-    required this.currentIndex,
-    required this.onNavTap,
+    this.currentIndex = 0,
+    this.onNavTap,
+    this.showBottomNav = true,
     super.key,
   });
 
@@ -36,9 +38,9 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     setState(() {
       _showMenu = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$item sélectionné')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$item sélectionné')));
   }
 
   @override
@@ -59,15 +61,24 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildMenuItem('Mon portefeuille', Icons.account_balance_wallet),
+                        _buildMenuItem(
+                          'Mon portefeuille',
+                          Icons.account_balance_wallet,
+                        ),
                         const SizedBox(height: 12),
-                        _buildMenuItem('Ajouter un prospect', Icons.person_add_outlined),
+                        _buildMenuItem(
+                          'Ajouter un prospect',
+                          Icons.person_add_outlined,
+                        ),
                         const SizedBox(height: 12),
                         _buildMenuItem('Ajouter un client', Icons.person_add),
                         const SizedBox(height: 12),
                         _buildMenuItem('Ajouter un contact', Icons.contacts),
                         const SizedBox(height: 12),
-                        _buildMenuItem('Importer des contacts', Icons.upload_file),
+                        _buildMenuItem(
+                          'Importer des contacts',
+                          Icons.upload_file,
+                        ),
                       ],
                     ),
                   ),
@@ -76,14 +87,18 @@ class _BaseScaffoldState extends State<BaseScaffold> {
             ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: widget.currentIndex,
-        onTap: widget.onNavTap,
-      ),
-      floatingActionButton: CustomFloatingActionButton(
-        onPressed: _toggleMenu,
-        isExpanded: _showMenu,
-      ),
+      bottomNavigationBar: widget.showBottomNav
+          ? CustomBottomNavBar(
+              currentIndex: widget.currentIndex,
+              onTap: widget.onNavTap ?? (_) {},
+            )
+          : null,
+      floatingActionButton: widget.showBottomNav
+          ? CustomFloatingActionButton(
+              onPressed: _toggleMenu,
+              isExpanded: _showMenu,
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -111,10 +126,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
             const SizedBox(width: 16),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
         ),

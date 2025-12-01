@@ -9,11 +9,11 @@ class SettingsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,  // Changed
+        color: AppColors.surfaceLight, // Changed
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withOpacity(0.1),  // Changed
+            color: AppColors.secondary.withOpacity(0.1), // Changed
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -24,7 +24,8 @@ class SettingsSection extends StatelessWidget {
         children: [
           Text(
             'Paramètres',
-            style: AppTextStyles.headlineMedium.copyWith(  // Changed
+            style: AppTextStyles.headlineMedium.copyWith(
+              // Changed
               fontSize: 18,
             ),
           ),
@@ -32,38 +33,48 @@ class SettingsSection extends StatelessWidget {
           _buildSettingItem(
             icon: Icons.notifications,
             title: 'Notifications',
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/notifications');
+            },
           ),
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.language,
             title: 'Langue',
             trailing: 'Français',
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/language');
+            },
           ),
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.security,
             title: 'Confidentialité',
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/privacy');
+            },
           ),
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.help,
             title: 'Aide et support',
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/help');
+            },
           ),
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.info,
             title: 'À propos',
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/about');
+            },
           ),
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.logout,
             title: 'Déconnexion',
-            iconColor: AppColors.error,  // Changed
+            iconColor: AppColors.error, // Changed
             onTap: () {},
           ),
         ],
@@ -84,12 +95,13 @@ class SettingsSection extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: iconColor ?? AppColors.primary),  // Changed
+            Icon(icon, color: iconColor ?? AppColors.primary), // Changed
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: AppTextStyles.bodyLarge.copyWith(  // Changed
+                style: AppTextStyles.bodyLarge.copyWith(
+                  // Changed
                   color: iconColor ?? AppColors.onSurfaceLight,
                 ),
               ),
@@ -97,12 +109,16 @@ class SettingsSection extends StatelessWidget {
             if (trailing != null)
               Text(
                 trailing,
-                style: AppTextStyles.bodyMedium.copyWith(  // Changed
+                style: AppTextStyles.bodyMedium.copyWith(
+                  // Changed
                   color: AppColors.secondary.withOpacity(0.6),
                 ),
               ),
             const SizedBox(width: 8),
-            Icon(Icons.chevron_right, color: AppColors.secondary.withOpacity(0.5)),  // Changed
+            Icon(
+              Icons.chevron_right,
+              color: AppColors.secondary.withOpacity(0.5),
+            ), // Changed
           ],
         ),
       ),

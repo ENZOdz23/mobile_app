@@ -7,7 +7,7 @@ class MoreRepository {
   Future<UserProfile> getUserProfile() async {
     await Future.delayed(const Duration(seconds: 1));
     return UserProfile(
-      name: 'Mme. Asma AID',
+      name: 'M. alaeddine AID',
       role: 'Commercial',
       email: 'asma.aid@prospectra.dz',
       phoneNumber: '+213 661 208 668',
@@ -18,12 +18,12 @@ class MoreRepository {
   // Simulate network speed test
   Future<NetworkSpeed> testNetworkSpeed() async {
     await Future.delayed(const Duration(seconds: 2));
-    
+
     // Simulate random speeds
     final random = Random();
     final downloadSpeed = 500 + random.nextDouble() * 500; // 500-1000 Kbps
     final uploadSpeed = 300 + random.nextDouble() * 300; // 300-600 Kbps
-    
+
     return NetworkSpeed(
       downloadSpeed: downloadSpeed,
       uploadSpeed: uploadSpeed,

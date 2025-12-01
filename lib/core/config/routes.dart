@@ -9,7 +9,12 @@ import '../../features/contacts/presentation/contacts_list_screen.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
-
+import '../../features/more/presentation/screens/wallet_screen.dart';
+import '../../features/more/presentation/screens/language_screen.dart';
+import '../../features/more/presentation/screens/privacy_screen.dart';
+import '../../features/more/presentation/screens/help_screen.dart';
+import '../../features/more/presentation/screens/about_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
@@ -20,6 +25,12 @@ class AppRoutes {
   static const String contacts = '/contacts';
   static const String calendar = '/calendar';
   static const String more = '/more';
+  static const String wallet = '/wallet';
+  static const String language = '/language';
+  static const String privacy = '/privacy';
+  static const String help = '/help';
+  static const String about = '/about';
+  static const String notifications = '/notifications';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -43,7 +54,9 @@ class AppRoutes {
           builder: (_) => ChangeEntrepriseStatePage(
             getCompaniesUseCase: GetCompaniesUseCase(CompanyRepositoryImpl()),
             getStatesUseCase: GetStatesUseCase(CompanyRepositoryImpl()),
-            updateCompanyStateUseCase: UpdateCompanyStateUseCase(CompanyRepositoryImpl()),
+            updateCompanyStateUseCase: UpdateCompanyStateUseCase(
+              CompanyRepositoryImpl(),
+            ),
           ),
         );
 
@@ -55,6 +68,24 @@ class AppRoutes {
 
       case more:
         return MaterialPageRoute(builder: (_) => const MoreScreen());
+
+      case wallet:
+        return MaterialPageRoute(builder: (_) => const WalletScreen());
+
+      case language:
+        return MaterialPageRoute(builder: (_) => const LanguageScreen());
+
+      case privacy:
+        return MaterialPageRoute(builder: (_) => const PrivacyScreen());
+
+      case help:
+        return MaterialPageRoute(builder: (_) => const HelpScreen());
+
+      case about:
+        return MaterialPageRoute(builder: (_) => const AboutScreen());
+
+      case notifications:
+        return MaterialPageRoute(builder: (_) => const NotificationsScreen());
 
       default:
         return MaterialPageRoute(
