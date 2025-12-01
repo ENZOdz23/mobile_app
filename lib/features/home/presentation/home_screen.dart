@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import '../../../shared/components/base_scaffold.dart';
 import '../../../core/config/routes.dart';
-import '../../../core/themes/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -9,7 +9,7 @@ import 'widgets/quick_action_button.dart';
 import 'widgets/contact_header.dart';
 import 'widgets/contact_utils.dart';
 
-class ContactFormScreen extends StatefulWidget {
+class ContactFormScreen extends StatelessWidget {
   final Contact contact;
   final Function(Contact) onEdit;
   final Function(String) onDelete;
@@ -21,28 +21,22 @@ class ContactFormScreen extends StatefulWidget {
     required this.onDelete,
   }) : super(key: key);
 
-  @override
-  State<ContactFormScreen> createState() => _ContactFormScreenState();
-}
-
-class _ContactFormScreenState extends State<ContactFormScreen> {
-  void _showEditForm() {
+  void _showEditForm(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => EditContactForm(
-        initialContact: widget.contact,
+        initialContact: contact,
         onSave: (edited) {
-          widget.onEdit(edited);
+          onEdit(edited);
           Navigator.of(context).pop();
-          setState(() {});
         },
       ),
     );
   }
 
-  void _delete() async {
+  void _delete(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -72,13 +66,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       ),
     );
     if (confirm == true) {
-      widget.onDelete(widget.contact.id);
+      onDelete(contact.id);
       Navigator.of(context).pop();
     }
   }
 
-  Future<void> _makePhoneCall() async {
-    final phone = widget.contact.phoneNumber;
+  Future<void> _makePhoneCall(BuildContext context) async {
+    final phone = contact.phoneNumber;
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Numéro de téléphone non disponible')),
@@ -102,8 +96,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     }
   }
 
-  Future<void> _sendEmail() async {
-    final email = widget.contact.email;
+  Future<void> _sendEmail(BuildContext context) async {
+    final email = contact.email;
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Email non disponible')),
@@ -115,7 +109,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       scheme: 'mailto',
       path: email,
       queryParameters: {
-        'subject': 'Suivi - ${widget.contact.name}',
+        'subject': 'Suivi - ${contact.name}',
       },
     );
     try {
@@ -133,8 +127,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     }
   }
 
-  Future<void> _startGoogleMeet() async {
-    final email = widget.contact.email;
+  Future<void> _startGoogleMeet(BuildContext context) async {
+    final email = contact.email;
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Email non disponible pour démarrer une réunion')),
@@ -153,7 +147,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Partagez le lien Google Meet avec ${widget.contact.name}',
+              'Partagez le lien Google Meet avec ${contact.name}',
             ),
             duration: Duration(seconds: 4),
           ),
@@ -173,7 +167,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final c = widget.contact;
+    final c = contact;
 
     return Scaffold(
       appBar: AppBar(
@@ -188,13 +182,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
           IconButton(
             icon: Icon(Icons.edit),
             color: AppColors.onPrimary,
-            onPressed: _showEditForm,
+            onPressed: () => _showEditForm(context),
             tooltip: 'Modifier',
           ),
           IconButton(
             icon: Icon(Icons.delete),
             color: AppColors.onPrimary,
-            onPressed: _delete,
+            onPressed: () => _delete(context),
             tooltip: 'Supprimer',
           ),
         ],
@@ -216,19 +210,19 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                 icon: Icons.call,
                 label: 'Appel',
                 color: AppColors.primary,
-                onTap: _makePhoneCall,
+                onTap: () => _makePhoneCall(context),
               ),
               QuickActionButton(
                 icon: Icons.email,
                 label: 'Email',
                 color: AppColors.primary,
-                onTap: _sendEmail,
+                onTap: () => _sendEmail(context),
               ),
               QuickActionButton(
                 icon: Icons.videocam,
                 label: 'Vidéo',
                 color: AppColors.primary,
-                onTap: _startGoogleMeet,
+                onTap: () => _startGoogleMeet(context),
               ),
             ],
           ),

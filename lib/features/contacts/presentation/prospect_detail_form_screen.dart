@@ -1,10 +1,11 @@
 // lib/features/prospects/presentation/prospect_detail_form_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/themes/app_theme.dart';
 import '../models/prospect.dart';
 import '../../contacts/models/contact.dart';
-import '../../contacts/domain/contacts_repository.dart';
+import '../../contacts/presentation/cubits/contacts_cubit.dart';
 import '../../contacts/presentation/widgets/quick_action_button.dart';
 import '../../contacts/presentation/widgets/detail_row.dart';
 import '../../contacts/presentation/widgets/detail_card.dart';
@@ -16,13 +17,12 @@ import '../../contacts/presentation/widgets/section_header.dart';
 import '../../contacts/presentation/widgets/contact_utils.dart';
 
 
-class ProspectDetailFormScreen extends StatefulWidget {
+class ProspectDetailFormScreen extends StatelessWidget {
   final Prospect prospect;
   final Function(Prospect) onEdit;
   final Function(String) onDelete;
   final VoidCallback onConvertToClient;
   final List<Contact> interlocuteurs;
-  final ContactsRepository contactRepository;
 
   const ProspectDetailFormScreen({
     super.key,
@@ -31,30 +31,23 @@ class ProspectDetailFormScreen extends StatefulWidget {
     required this.onDelete,
     required this.onConvertToClient,
     this.interlocuteurs = const [],
-    required this.contactRepository,
   });
 
-  @override
-  State<ProspectDetailFormScreen> createState() => _ProspectDetailFormScreenState();
-}
-
-class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
-  void _showEditForm() {
+  void _showEditForm(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => EditProspectForm(
-        initialProspect: widget.prospect,
+        initialProspect: prospect,
         onSave: (edited) {
-          widget.onEdit(edited);
+          onEdit(edited);
           Navigator.of(context).pop();
-          setState(() {});
         },
       ),
     );
   }
 
-  void _delete() async {
+  void _delete(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -74,14 +67,14 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
     );
 
     if (confirm == true) {
-      widget.onDelete(widget.prospect.id);
+      onDelete(prospect.id);
       Navigator.of(context).pop();
     }
   }
 
-  void _convertToClient() async {
+  void _convertToClient(BuildContext context) async {
     // Check if there are interlocuteurs
-    if (widget.interlocuteurs.isEmpty) {
+    if (interlocuteurs.isEmpty) {
       final createContact = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
@@ -101,7 +94,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
       );
 
       if (createContact == true) {
-        _showCreateInterlocuteurForm();
+        _showCreateInterlocuteurForm(context);
       }
       return;
     }
@@ -137,8 +130,9 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
 
     if (selectedStatus != null) {
       if (selectedStatus == ProspectStatus.client) {
-        // Convert all interlocuteurs to clients
-        for (var contact in widget.interlocuteurs) {
+        // Convert all interlocuteurs to clients using Cubit
+        final contactsCubit = context.read<ContactsCubit>();
+        for (var contact in interlocuteurs) {
           final updatedContact = Contact(
             id: contact.id,
             name: contact.name,
@@ -147,11 +141,11 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
             company: contact.company,
             type: ContactType.client,
           );
-          await widget.contactRepository.updateContact(updatedContact);
+          await contactsCubit.updateContact(updatedContact);
         }
 
         // Delete the prospect
-        widget.onConvertToClient();
+        onConvertToClient();
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Prospect converti en client avec succès!')),
@@ -159,24 +153,23 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
       } else {
         // Update prospect status
         final updatedProspect = Prospect(
-          id: widget.prospect.id,
-          entreprise: widget.prospect.entreprise,
-          adresse: widget.prospect.adresse,
-          wilaya: widget.prospect.wilaya,
-          commune: widget.prospect.commune,
-          phoneNumber: widget.prospect.phoneNumber,
-          email: widget.prospect.email,
-          categorie: widget.prospect.categorie,
-          formeLegale: widget.prospect.formeLegale,
-          secteur: widget.prospect.secteur,
-          sousSecteur: widget.prospect.sousSecteur,
-          nif: widget.prospect.nif,
-          registreCommerce: widget.prospect.registreCommerce,
+          id: prospect.id,
+          entreprise: prospect.entreprise,
+          adresse: prospect.adresse,
+          wilaya: prospect.wilaya,
+          commune: prospect.commune,
+          phoneNumber: prospect.phoneNumber,
+          email: prospect.email,
+          categorie: prospect.categorie,
+          formeLegale: prospect.formeLegale,
+          secteur: prospect.secteur,
+          sousSecteur: prospect.sousSecteur,
+          nif: prospect.nif,
+          registreCommerce: prospect.registreCommerce,
           status: selectedStatus,
         );
         
-        widget.onEdit(updatedProspect);
-        setState(() {});
+        onEdit(updatedProspect);
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Statut mis à jour')),
@@ -185,16 +178,16 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
     }
   }
 
-  void _showCreateInterlocuteurForm() {
+  void _showCreateInterlocuteurForm(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => CreateInterlocuteurForm(
-        prospectCompany: widget.prospect.entreprise,
+        prospectCompany: prospect.entreprise,
         onSave: (newContact) async {
-          await widget.contactRepository.addContact(newContact);
+          await context.read<ContactsCubit>().contactsRepository.addContact(newContact);
+          await context.read<ContactsCubit>().loadContacts();
           Navigator.of(context).pop();
-          setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Interlocuteur créé avec succès')),
           );
@@ -220,7 +213,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.prospect;
+    final p = prospect;
 
     return Scaffold(
       appBar: AppBar(
@@ -235,13 +228,13 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
           IconButton(
             icon: Icon(Icons.edit),
             color: AppColors.onPrimary,
-            onPressed: _showEditForm,
+            onPressed: () => _showEditForm(context),
             tooltip: 'Modifier',
           ),
           IconButton(
             icon: Icon(Icons.delete),
             color: AppColors.onPrimary,
-            onPressed: _delete,
+            onPressed: () => _delete(context),
             tooltip: 'Supprimer',
           ),
         ],
@@ -281,13 +274,13 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
                 icon: Icons.change_circle,
                 label: 'État',
                 color: AppColors.primary,
-                onTap: _convertToClient,
+                onTap: () => _convertToClient(context),
               ),
               QuickActionButton(
                 icon: Icons.person_add,
                 label: 'Interlocuteur',
                 color: AppColors.primary,
-                onTap: _showCreateInterlocuteurForm,
+                onTap: () => _showCreateInterlocuteurForm(context),
               ),
               QuickActionButton(
                 icon: Icons.calendar_today,
@@ -305,12 +298,12 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
           SectionHeader(
             title: 'Interlocuteurs',
             actionIcon: Icons.add_circle,
-            onActionPressed: _showCreateInterlocuteurForm,
+            onActionPressed: () => _showCreateInterlocuteurForm(context),
             actionTooltip: 'Ajouter un interlocuteur',
           ),
           SizedBox(height: 12),
           
-          if (widget.interlocuteurs.isEmpty)
+          if (interlocuteurs.isEmpty)
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -329,7 +322,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
               ),
             )
           else
-            ...widget.interlocuteurs.map(
+            ...interlocuteurs.map(
               (contact) => InterlocuteurItem(contact: contact),
             ),
           SizedBox(height: 24),
