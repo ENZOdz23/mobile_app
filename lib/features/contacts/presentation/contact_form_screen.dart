@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/themes/app_theme.dart';
 import '../models/contact.dart';
-import '../../../shared/validators/contact_validator.dart';
+import 'widgets/edit_contact_form.dart';
+import 'widgets/quick_action_button.dart';
+import 'widgets/contact_header.dart';
+import 'widgets/contact_utils.dart';
 
 class ContactFormScreen extends StatefulWidget {
   final Contact contact;
@@ -167,15 +170,6 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     }
   }
 
-  String getInitials(String name) {
-    if (name.isEmpty) return "?";
-    var parts = name.trim().split(" ");
-    if (parts.length == 1) {
-      return parts[0][0].toUpperCase();
-    }
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -209,47 +203,28 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         children: [
-          Center(
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: AppColors.primary,
-              child: Text(
-                getInitials(c.name),
-                style: TextStyle(
-                  color: AppColors.onPrimary,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 12),
-          Center(
-            child: Text(
-              c.name,
-              style: AppTextStyles.headlineMedium.copyWith(
-                color: AppColors.secondary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          ContactHeader(
+            name: c.name,
+            initials: ContactUtils.getInitials(c.name),
           ),
           SizedBox(height: 28),
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _QuickActionButton(
+              QuickActionButton(
                 icon: Icons.call,
                 label: 'Appel',
                 color: AppColors.primary,
                 onTap: _makePhoneCall,
               ),
-              _QuickActionButton(
+              QuickActionButton(
                 icon: Icons.email,
                 label: 'Email',
                 color: AppColors.primary,
                 onTap: _sendEmail,
               ),
-              _QuickActionButton(
+              QuickActionButton(
                 icon: Icons.videocam,
                 label: 'Vidéo',
                 color: AppColors.primary,
@@ -258,6 +233,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             ],
           ),
           SizedBox(height: 28),
+          
           Text(
             'Coordonnées',
             style: AppTextStyles.headlineMedium.copyWith(
@@ -299,6 +275,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             ],
           ),
           SizedBox(height: 24),
+          
           Text(
             'Détails du contact',
             style: AppTextStyles.headlineMedium.copyWith(
@@ -324,225 +301,6 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class EditContactForm extends StatefulWidget {
-  final Contact initialContact;
-  final ValueChanged<Contact> onSave;
-
-  const EditContactForm({
-    super.key,
-    required this.initialContact,
-    required this.onSave,
-  });
-
-  @override
-  State<EditContactForm> createState() => _EditContactFormState();
-}
-
-class _EditContactFormState extends State<EditContactForm> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _emailController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.initialContact.name);
-    _phoneController = TextEditingController(text: widget.initialContact.phoneNumber);
-    _emailController = TextEditingController(text: widget.initialContact.email);
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      widget.onSave(Contact(
-        id: widget.initialContact.id,
-        name: _nameController.text.trim(),
-        phoneNumber: _phoneController.text.trim(),
-        email: _emailController.text.trim(),
-        company: widget.initialContact.company,
-        type: widget.initialContact.type,
-      ));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 24,
-          right: 24,
-          top: 24,
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Handle bar
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              SizedBox(height: 24),
-              
-              // Title
-              Text(
-                'Modifier le contact',
-                style: AppTextStyles.headlineMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.secondary,
-                  fontSize: 22,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 32),
-              
-              // Name field
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nom complet',
-                  prefixIcon: Icon(Icons.person, color: AppColors.primary),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                ),
-                validator: (value) => ContactValidator.validateName(value),
-              ),
-              SizedBox(height: 20),
-              
-              // Phone field
-              TextFormField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  labelText: 'Numéro de téléphone',
-                  prefixIcon: Icon(Icons.phone, color: AppColors.primary),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                ),
-                keyboardType: TextInputType.phone,
-                validator: (value) => (value == null || value.isEmpty) 
-                    ? 'Téléphone requis' 
-                    : null,
-              ),
-              SizedBox(height: 20),
-              
-              // Email field
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email, color: AppColors.primary),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) return 'Email requis';
-                  return ContactValidator.validateEmail(value);
-                },
-              ),
-              SizedBox(height: 32),
-              
-              // Save button
-              ElevatedButton(
-                onPressed: _submit,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.onPrimary,
-                ),
-                child: Text(
-                  'Mettre à jour',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Material(
-          color: Colors.transparent,
-          shape: CircleBorder(),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(30),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(icon, size: 28, color: color),
-            ),
-          ),
-        ),
-        SizedBox(height: 6),
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.secondary),
-        ),
-      ],
     );
   }
 }

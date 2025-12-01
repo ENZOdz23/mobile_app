@@ -3,49 +3,39 @@
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../models/contact.dart';
+import 'contact_utils.dart';
 
 class ContactItem extends StatelessWidget {
   final Contact contact;
   final VoidCallback onTap;
 
   const ContactItem({
-    Key? key,
+    super.key,
     required this.contact,
     required this.onTap,
-  }) : super(key: key);
-
-  String getInitials(String name) {
-    if (name.isEmpty) return "?";
-    var parts = name.trim().split(" ");
-    if (parts.length == 1) {
-      return parts[0][0].toUpperCase();
-    }
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isProspect = contact.type == ContactType.prospect;
+    final bool isProspect = contact.type == 'prospect'; // example field
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 1,
-      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: EdgeInsets.all(14),
+          padding: const EdgeInsets.all(14),
           child: Row(
             children: [
-              // Avatar with initials
               CircleAvatar(
                 radius: 26,
-                backgroundColor: isProspect
-                    ? AppColors.secondary
-                    : AppColors.primary,
+                backgroundColor:
+                    isProspect ? AppColors.secondary : AppColors.primary,
                 child: Text(
-                  getInitials(contact.name),
+                  ContactUtils.getInitials(contact.name),
                   style: TextStyle(
                     color: AppColors.onPrimary,
                     fontSize: 18,
@@ -53,8 +43,7 @@ class ContactItem extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 14),
-              // Contact name, company, and phone
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,8 +58,9 @@ class ContactItem extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+
                     if (contact.company.isNotEmpty) ...[
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         contact.company,
                         style: AppTextStyles.bodyMedium?.copyWith(
@@ -81,7 +71,8 @@ class ContactItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    SizedBox(height: 4),
+
+                    const SizedBox(height: 4),
                     Text(
                       'Mobile: ${contact.phoneNumber}',
                       style: AppTextStyles.bodyMedium?.copyWith(
@@ -94,7 +85,7 @@ class ContactItem extends StatelessWidget {
                   ],
                 ),
               ),
-              // Chevron icon
+
               Icon(
                 Icons.chevron_right,
                 color: Colors.grey[400],

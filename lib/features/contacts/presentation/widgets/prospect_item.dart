@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../models/prospect.dart';
+import 'contact_utils.dart';
 
 class ProspectItem extends StatelessWidget {
   final Prospect prospect;
@@ -14,14 +15,7 @@ class ProspectItem extends StatelessWidget {
     required this.onTap,
   });
 
-  String getInitials(String name) {
-    if (name.isEmpty) return "?";
-    var parts = name.trim().split(" ");
-    if (parts.length == 1) {
-      return parts[0][0].toUpperCase();
-    }
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +35,7 @@ class ProspectItem extends StatelessWidget {
                 radius: 26,
                 backgroundColor: AppColors.primary,
                 child: Text(
-                  getInitials(prospect.entreprise),
+                  ContactUtils.getInitials(prospect.entreprise),
                   style: TextStyle(
                     color: AppColors.onPrimary,
                     fontSize: 18,
