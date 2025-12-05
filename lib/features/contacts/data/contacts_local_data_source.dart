@@ -3,7 +3,7 @@
 import '../models/contact.dart';
 
 class ContactsLocalDataSource {
-  final List<Contact> _contacts = [
+  static final List<Contact> _contacts = [
     // Client contacts
     Contact(
       id: '1',

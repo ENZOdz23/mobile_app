@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'custom_app_bar.dart';
 import 'custom_bottom_nav_bar.dart';
 import 'custom_floating_action_button.dart';
+import '../../core/config/routes.dart';
 
 class BaseScaffold extends StatefulWidget {
   final String title;
@@ -38,9 +39,16 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     setState(() {
       _showMenu = false;
     });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('$item sélectionné')));
+    
+    if (item == 'Ajouter un prospect') {
+      Navigator.of(context).pushNamed(AppRoutes.addProspect);
+    } else if (item == 'Ajouter un contact') {
+      Navigator.of(context).pushNamed(AppRoutes.addContact);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$item sélectionné')));
+    }
   }
 
   @override

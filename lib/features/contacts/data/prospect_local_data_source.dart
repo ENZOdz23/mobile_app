@@ -4,7 +4,7 @@ import '../models/prospect.dart';
 
 class ProspectsLocalDataSource {
   // Mock data for now - replace with actual database later
-  final List<Prospect> _mockProspects = [
+  static final List<Prospect> _mockProspects = [
     Prospect(
       id: 'p1',
       entreprise: 'Boehm, Gleichner and Schmidt',
