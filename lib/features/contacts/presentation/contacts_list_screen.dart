@@ -212,9 +212,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                         value: context.read<ContactsCubit>(),
                         child: ContactFormScreen(
                           contactId: contact.id, // Changed: pass ID
-                          onEdit: (updated) {
-                            context.read<ContactsCubit>().updateContact(updated);
-                          },
+                          onEdit: (updated) => context.read<ContactsCubit>().updateContact(updated),
                           onDelete: (id) {
                             context.read<ContactsCubit>().deleteContact(id);
                           },
@@ -278,9 +276,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                         ],
                         child: ProspectDetailFormScreen(
                           prospectId: prospect.id, // Changed: pass ID
-                          onEdit: (updated) {
-                            context.read<ProspectsCubit>().updateProspect(updated);
-                          },
+                          onEdit: (updated) => context.read<ProspectsCubit>().updateProspect(updated),
                           onDelete: (id) {
                             context.read<ProspectsCubit>().deleteProspect(id);
                           },

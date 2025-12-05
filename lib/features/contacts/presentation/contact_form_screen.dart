@@ -13,7 +13,7 @@ import 'cubits/contacts_cubit.dart';
 
 class ContactFormScreen extends StatelessWidget {
   final String contactId; // Changed: accept ID instead of object
-  final Function(Contact) onEdit;
+  final Future<void> Function(Contact) onEdit;
   final Function(String) onDelete;
 
   const ContactFormScreen({
@@ -30,8 +30,8 @@ class ContactFormScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => EditContactForm(
         initialContact: contact,
-        onSave: (edited) {
-          onEdit(edited);
+        onSave: (edited) async {
+          await onEdit(edited);
           Navigator.of(context).pop();
         },
       ),
@@ -86,32 +86,30 @@ class ContactFormScreen extends StatelessWidget {
       if (await canLaunchUrl(phoneUri)) {
         await launchUrl(phoneUri);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Impossible d\'appeler')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Impossible d\'appeler')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
     }
   }
 
   Future<void> _sendEmail(BuildContext context, Contact contact) async {
     final email = contact.email;
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email non disponible')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Email non disponible')));
       return;
     }
 
     final Uri emailUri = Uri(
       scheme: 'mailto',
       path: email,
-      queryParameters: {
-        'subject': 'Suivi - ${contact.name}',
-      },
+      queryParameters: {'subject': 'Suivi - ${contact.name}'},
     );
     try {
       if (await canLaunchUrl(emailUri)) {
@@ -122,9 +120,9 @@ class ContactFormScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
     }
   }
 
@@ -132,13 +130,15 @@ class ContactFormScreen extends StatelessWidget {
     final email = contact.email;
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email non disponible pour démarrer une réunion')),
+        SnackBar(
+          content: Text('Email non disponible pour démarrer une réunion'),
+        ),
       );
       return;
     }
 
     final meetUrl = 'https://meet.google.com/new';
-    
+
     try {
       if (await canLaunchUrl(Uri.parse(meetUrl))) {
         await launchUrl(
@@ -147,9 +147,7 @@ class ContactFormScreen extends StatelessWidget {
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Partagez le lien Google Meet avec ${contact.name}',
-            ),
+            content: Text('Partagez le lien Google Meet avec ${contact.name}'),
             duration: Duration(seconds: 4),
           ),
         );
@@ -159,9 +157,9 @@ class ContactFormScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
     }
   }
 
@@ -174,7 +172,7 @@ class ContactFormScreen extends StatelessWidget {
       builder: (context, state) {
         // Find the contact from the current state
         Contact? contact;
-        
+
         if (state is ContactsLoaded) {
           try {
             contact = state.contacts.firstWhere((c) => c.id == contactId);
@@ -244,7 +242,7 @@ class ContactFormScreen extends StatelessWidget {
                 initials: ContactUtils.getInitials(c.name),
               ),
               SizedBox(height: 28),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -269,7 +267,7 @@ class ContactFormScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 28),
-              
+
               Text(
                 'Coordonnées',
                 style: AppTextStyles.headlineMedium.copyWith(
@@ -313,7 +311,7 @@ class ContactFormScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 24),
-              
+
               Text(
                 'Détails du contact',
                 style: AppTextStyles.headlineMedium.copyWith(
@@ -330,8 +328,8 @@ class ContactFormScreen extends StatelessWidget {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      c.company.isNotEmpty 
-                          ? c.company 
+                      c.company.isNotEmpty
+                          ? c.company
                           : 'Aucune entreprise associée',
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.secondary,

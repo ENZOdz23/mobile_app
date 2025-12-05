@@ -7,7 +7,7 @@ import '../../../../shared/validators/contact_validator.dart';
 
 class EditContactForm extends StatefulWidget {
   final Contact initialContact;
-  final ValueChanged<Contact> onSave;
+  final Future<void> Function(Contact) onSave;
 
   const EditContactForm({
     super.key,
@@ -24,12 +24,15 @@ class _EditContactFormState extends State<EditContactForm> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialContact.name);
-    _phoneController = TextEditingController(text: widget.initialContact.phoneNumber);
+    _phoneController = TextEditingController(
+      text: widget.initialContact.phoneNumber,
+    );
     _emailController = TextEditingController(text: widget.initialContact.email);
   }
 
@@ -41,16 +44,28 @@ class _EditContactFormState extends State<EditContactForm> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      widget.onSave(Contact(
-        id: widget.initialContact.id,
-        name: _nameController.text.trim(),
-        phoneNumber: _phoneController.text.trim(),
-        email: _emailController.text.trim(),
-        company: widget.initialContact.company,
-        type: widget.initialContact.type,
-      ));
+      debugPrint(
+        '[EditContactForm] Submitting changes for ${widget.initialContact.id}',
+      );
+      setState(() {
+        _isSubmitting = true;
+      });
+      FocusScope.of(context).unfocus();
+      await widget.onSave(
+        Contact(
+          id: widget.initialContact.id,
+          name: _nameController.text.trim(),
+          phoneNumber: _phoneController.text.trim(),
+          email: _emailController.text.trim(),
+          company: widget.initialContact.company,
+          type: widget.initialContact.type,
+        ),
+      );
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -89,7 +104,7 @@ class _EditContactFormState extends State<EditContactForm> {
                 ),
               ),
               SizedBox(height: 24),
-              
+
               // Title
               Text(
                 'Modifier le contact',
@@ -101,7 +116,7 @@ class _EditContactFormState extends State<EditContactForm> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 32),
-              
+
               // Name field
               TextFormField(
                 controller: _nameController,
@@ -117,7 +132,7 @@ class _EditContactFormState extends State<EditContactForm> {
                 validator: (value) => ContactValidator.validateName(value),
               ),
               SizedBox(height: 20),
-              
+
               // Phone field
               TextFormField(
                 controller: _phoneController,
@@ -131,12 +146,12 @@ class _EditContactFormState extends State<EditContactForm> {
                   fillColor: Colors.grey[50],
                 ),
                 keyboardType: TextInputType.phone,
-                validator: (value) => (value == null || value.isEmpty) 
-                    ? 'Téléphone requis' 
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Téléphone requis'
                     : null,
               ),
               SizedBox(height: 20),
-              
+
               // Email field
               TextFormField(
                 controller: _emailController,
@@ -151,15 +166,16 @@ class _EditContactFormState extends State<EditContactForm> {
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) return 'Email requis';
+                  if (value == null || value.trim().isEmpty)
+                    return 'Email requis';
                   return ContactValidator.validateEmail(value);
                 },
               ),
               SizedBox(height: 32),
-              
+
               // Save button
               ElevatedButton(
-                onPressed: _submit,
+                onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -170,10 +186,7 @@ class _EditContactFormState extends State<EditContactForm> {
                 ),
                 child: Text(
                   'Mettre à jour',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(height: 24),

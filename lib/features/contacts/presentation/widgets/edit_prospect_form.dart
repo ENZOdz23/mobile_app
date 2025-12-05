@@ -6,7 +6,7 @@ import '../../../../core/themes/app_theme.dart';
 
 class EditProspectForm extends StatefulWidget {
   final Prospect initialProspect;
-  final ValueChanged<Prospect> onSave;
+  final Future<void> Function(Prospect) onSave;
 
   const EditProspectForm({
     super.key,
@@ -29,6 +29,7 @@ class _EditProspectFormState extends State<EditProspectForm> {
   late TextEditingController _secteurController;
   late TextEditingController _nifController;
   late TextEditingController _registreCommerceController;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -74,9 +75,16 @@ class _EditProspectFormState extends State<EditProspectForm> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      widget.onSave(
+      debugPrint(
+        '[EditProspectForm] Submitting changes for ${widget.initialProspect.id}',
+      );
+      setState(() {
+        _isSubmitting = true;
+      });
+      FocusScope.of(context).unfocus();
+      await widget.onSave(
         Prospect(
           id: widget.initialProspect.id,
           entreprise: _entrepriseController.text.trim(),
@@ -94,6 +102,9 @@ class _EditProspectFormState extends State<EditProspectForm> {
           status: widget.initialProspect.status,
         ),
       );
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -322,7 +333,7 @@ class _EditProspectFormState extends State<EditProspectForm> {
 
                 // Save button
                 ElevatedButton(
-                  onPressed: _submit,
+                  onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

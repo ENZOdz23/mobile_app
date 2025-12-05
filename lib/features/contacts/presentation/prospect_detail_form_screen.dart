@@ -19,7 +19,7 @@ import '../../contacts/presentation/widgets/contact_utils.dart';
 
 class ProspectDetailFormScreen extends StatelessWidget {
   final String prospectId; // Changed: accept ID instead of object
-  final Function(Prospect) onEdit;
+  final Future<void> Function(Prospect) onEdit;
   final Function(String) onDelete;
   final VoidCallback onConvertToClient;
 
@@ -37,8 +37,8 @@ class ProspectDetailFormScreen extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) => EditProspectForm(
         initialProspect: prospect,
-        onSave: (edited) {
-          onEdit(edited);
+        onSave: (edited) async {
+          await onEdit(edited);
           Navigator.of(context).pop();
         },
       ),
@@ -70,14 +70,20 @@ class ProspectDetailFormScreen extends StatelessWidget {
     }
   }
 
-  void _convertToClient(BuildContext context, Prospect prospect, List<Contact> interlocuteurs) async {
+  void _convertToClient(
+    BuildContext context,
+    Prospect prospect,
+    List<Contact> interlocuteurs,
+  ) async {
     // Check if there are interlocuteurs
     if (interlocuteurs.isEmpty) {
       final createContact = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
           title: Text('Aucun interlocuteur'),
-          content: Text('Ce prospect n\'a pas d\'interlocuteur. Voulez-vous en créer un avant de convertir en client ?'),
+          content: Text(
+            'Ce prospect n\'a pas d\'interlocuteur. Voulez-vous en créer un avant de convertir en client ?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -166,12 +172,12 @@ class ProspectDetailFormScreen extends StatelessWidget {
           registreCommerce: prospect.registreCommerce,
           status: selectedStatus,
         );
-        
+
         onEdit(updatedProspect);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Statut mis à jour')),
-        );
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Statut mis à jour')));
       }
     }
   }
@@ -183,7 +189,9 @@ class ProspectDetailFormScreen extends StatelessWidget {
       builder: (context) => CreateInterlocuteurForm(
         prospectCompany: prospect.entreprise,
         onSave: (newContact) async {
-          await context.read<ContactsCubit>().contactsRepository.addContact(newContact);
+          await context.read<ContactsCubit>().contactsRepository.addContact(
+            newContact,
+          );
           await context.read<ContactsCubit>().loadContacts();
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -300,7 +308,7 @@ class ProspectDetailFormScreen extends StatelessWidget {
                     initials: ContactUtils.getInitials(p.entreprise),
                   ),
                   SizedBox(height: 12),
-                  
+
                   // Status chip
                   Center(
                     child: Chip(
@@ -324,7 +332,8 @@ class ProspectDetailFormScreen extends StatelessWidget {
                         icon: Icons.change_circle,
                         label: 'État',
                         color: AppColors.primary,
-                        onTap: () => _convertToClient(context, p, interlocuteurs),
+                        onTap: () =>
+                            _convertToClient(context, p, interlocuteurs),
                       ),
                       QuickActionButton(
                         icon: Icons.person_add,
@@ -348,11 +357,12 @@ class ProspectDetailFormScreen extends StatelessWidget {
                   SectionHeader(
                     title: 'Interlocuteurs',
                     actionIcon: Icons.add_circle,
-                    onActionPressed: () => _showCreateInterlocuteurForm(context, p),
+                    onActionPressed: () =>
+                        _showCreateInterlocuteurForm(context, p),
                     actionTooltip: 'Ajouter un interlocuteur',
                   ),
                   SizedBox(height: 12),
-                  
+
                   if (interlocuteurs.isEmpty)
                     Container(
                       padding: EdgeInsets.all(16),
@@ -385,7 +395,9 @@ class ProspectDetailFormScreen extends StatelessWidget {
                       DetailRow(
                         icon: Icons.location_on,
                         label: 'Adresse',
-                        value: p.adresse.isNotEmpty ? p.adresse : 'Non spécifié',
+                        value: p.adresse.isNotEmpty
+                            ? p.adresse
+                            : 'Non spécifié',
                       ),
                       if (p.wilaya.isNotEmpty)
                         DetailRow(
