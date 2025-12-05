@@ -261,7 +261,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
                   // Fetch interlocuteurs for this prospect
                   final interlocuteurs = await _getInterlocuteursForProspect(prospect.entreprise);
                   
-                  Navigator.of(context).push(
+                  await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => ProspectDetailFormScreen(
                         prospect: prospect,
@@ -284,6 +284,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
                       ),
                     ),
                   );
+                  _loadData();
                 },
               );
             },

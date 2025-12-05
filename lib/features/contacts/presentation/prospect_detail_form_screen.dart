@@ -39,6 +39,14 @@ class ProspectDetailFormScreen extends StatefulWidget {
 }
 
 class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
+  late List<Contact> _interlocuteurs;
+
+  @override
+  void initState() {
+    super.initState();
+    _interlocuteurs = List.from(widget.interlocuteurs);
+  }
+
   void _showEditForm() {
     showModalBottomSheet(
       context: context,
@@ -81,7 +89,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
 
   void _convertToClient() async {
     // Check if there are interlocuteurs
-    if (widget.interlocuteurs.isEmpty) {
+    if (_interlocuteurs.isEmpty) {
       final createContact = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
@@ -138,7 +146,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
     if (selectedStatus != null) {
       if (selectedStatus == ProspectStatus.client) {
         // Convert all interlocuteurs to clients
-        for (var contact in widget.interlocuteurs) {
+        for (var contact in _interlocuteurs) {
           final updatedContact = Contact(
             id: contact.id,
             name: contact.name,
@@ -193,8 +201,10 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
         prospectCompany: widget.prospect.entreprise,
         onSave: (newContact) async {
           await widget.contactRepository.addContact(newContact);
+          setState(() {
+            _interlocuteurs.add(newContact);
+          });
           Navigator.of(context).pop();
-          setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Interlocuteur créé avec succès')),
           );
@@ -310,7 +320,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
           ),
           SizedBox(height: 12),
           
-          if (widget.interlocuteurs.isEmpty)
+          if (_interlocuteurs.isEmpty)
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -329,7 +339,7 @@ class _ProspectDetailFormScreenState extends State<ProspectDetailFormScreen> {
               ),
             )
           else
-            ...widget.interlocuteurs.map(
+            ..._interlocuteurs.map(
               (contact) => InterlocuteurItem(contact: contact),
             ),
           SizedBox(height: 24),
