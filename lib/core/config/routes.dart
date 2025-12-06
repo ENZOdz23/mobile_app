@@ -26,6 +26,11 @@ import '../../features/contacts/data/prospect_local_data_source.dart';
 import '../../features/contacts/domain/add_contact_use_case.dart';
 import '../../features/contacts/domain/add_prospect_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/home/presentation/screens/kpis_screen.dart';
+import '../../features/home/presentation/screens/goals_screen.dart';
+import '../../features/home/presentation/screens/recent_activities_screen.dart';
+import '../../features/home/presentation/screens/add_prospect_screen.dart';
+import '../../features/home/presentation/screens/plan_meeting_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
@@ -42,6 +47,11 @@ class AppRoutes {
   static const String help = '/help';
   static const String about = '/about';
   static const String notifications = '/notifications';
+  static const String kpis = '/kpis';
+  static const String goals = '/goals';
+  static const String recentActivities = '/recent-activities';
+  static const String addProspect = '/add-prospect';
+  static const String planMeeting = '/plan-meeting';
 
   static const String addContact = '/add-contact';
   static const String addProspect = '/add-prospect';
@@ -138,6 +148,22 @@ class AppRoutes {
             ),
           ),
         );
+      case kpis:
+        return MaterialPageRoute(builder: (_) => const KPIsScreen());
+
+      case goals:
+        return MaterialPageRoute(builder: (_) => const GoalsScreen());
+
+      case recentActivities:
+        return MaterialPageRoute(
+          builder: (_) => const RecentActivitiesScreen(),
+        );
+
+      case addProspect:
+        return MaterialPageRoute(builder: (_) => const AddProspectScreen());
+
+      case planMeeting:
+        return MaterialPageRoute(builder: (_) => const PlanMeetingScreen());
 
       default:
         return MaterialPageRoute(

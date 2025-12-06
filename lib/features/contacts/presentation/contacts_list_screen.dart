@@ -1,9 +1,6 @@
-// lib/features/contacts/presentation/contacts_list_screen.dart
-
 import 'package:flutter/material.dart';
-import '../models/contact.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/get_contacts_use_case.dart';
-import '../domain/contacts_repository.dart';
 import '../data/contacts_local_data_source.dart';
 import '../data/contacts_repository_impl.dart';
 import '../../../shared/components/base_scaffold.dart';
@@ -12,60 +9,53 @@ import 'contact_form_screen.dart';
 import 'widgets/contact_item.dart';
 import 'widgets/prospect_item.dart';
 import 'prospect_detail_form_screen.dart';
-import '../models/prospect.dart';
 import '../domain/get_prospects_use_case.dart';
-import '../domain/prospect_repository.dart';
 import '../data/prospect_local_data_source.dart';
 import '../data/prospect_repository_impl.dart';
-import '../../home/presentation/home_screen.dart';
+import 'cubits/contacts_cubit.dart';
+import 'cubits/prospects_cubit.dart';
+import 'cubits/contacts_list_cubit.dart';
+import 'cubits/contacts_list_cubit.dart' show ContactType;
 
-enum ContactType { client, prospect }
-
-class ContactsListScreen extends StatefulWidget {
+class ContactsListScreen extends StatelessWidget {
   @override
-  _ContactsListScreenState createState() => _ContactsListScreenState();
-}
-
-class _ContactsListScreenState extends State<ContactsListScreen> {
-  late ContactsRepository _contactRepository;
-  late ProspectRepository _prospectRepository;
-  late GetContactsUseCase _getContactsUseCase;
-  late GetProspectsUseCase _getProspectsUseCase;
-  late Future<List<Contact>> _contactsFuture;
-  late Future<List<Prospect>> _prospectsFuture;
-  ContactType _selectedType = ContactType.client;
-
-  @override
-  void initState() {
-    super.initState();
-    _contactRepository = ContactsRepositoryImpl(
+  Widget build(BuildContext context) {
+    // Initialize repositories and use cases
+    final contactRepository = ContactsRepositoryImpl(
       localDataSource: ContactsLocalDataSource(),
     );
-    _prospectRepository = ProspectRepositoryImpl(
+    final prospectRepository = ProspectsRepositoryImpl(
       localDataSource: ProspectsLocalDataSource(),
     );
-    _getContactsUseCase = GetContactsUseCase(_contactRepository);
-    _getProspectsUseCase = GetProspectsUseCase(_prospectRepository);
-    _loadData();
-  }
+    final getContactsUseCase = GetContactsUseCase(contactRepository);
+    final getProspectsUseCase = GetProspectsUseCase(prospectRepository);
 
-  void _loadData() {
-    setState(() {
-      _contactsFuture = _getContactsUseCase();
-      _prospectsFuture = _getProspectsUseCase();
-    });
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => ContactsCubit(
+            getContactsUseCase: getContactsUseCase,
+            contactsRepository: contactRepository,
+          )..loadContacts(),
+        ),
+        BlocProvider(
+          create: (context) => ProspectsCubit(
+            getProspectsUseCase: getProspectsUseCase,
+            prospectRepository: prospectRepository,
+          )..loadProspects(),
+        ),
+        BlocProvider(create: (context) => ContactsListCubit()),
+      ],
+      child: _ContactsListScreenContent(),
+    );
   }
+}
 
-  // Get contacts (interlocuteurs) for a specific prospect company
-  Future<List<Contact>> _getInterlocuteursForProspect(String prospectCompany) async {
-    final allContacts = await _contactsFuture;
-    return allContacts.where((contact) => contact.company == prospectCompany).toList();
-  }
-
+class _ContactsListScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return BaseScaffold(
       currentIndex: 1,
       onNavTap: (index) {
@@ -73,7 +63,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
           Navigator.pushReplacementNamed(context, AppRoutes.offres);
         }
         if (index == 0) {
-        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
         }
         if (index == 3) {
           Navigator.pushReplacementNamed(context, AppRoutes.more);
@@ -83,120 +73,130 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
       body: Column(
         children: [
           // Tab selector
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[300]!, width: 1),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedType = ContactType.client;
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _selectedType == ContactType.client
-                                ? theme.colorScheme.primary
-                                : Colors.transparent,
-                            width: 3,
+          BlocBuilder<ContactsListCubit, ContactsListState>(
+            builder: (context, state) {
+              final cubit = context.read<ContactsListCubit>();
+              final selectedType = cubit.selectedType;
+
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          cubit.changeTab(ContactType.client);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: selectedType == ContactType.client
+                                    ? theme.colorScheme.primary
+                                    : Colors.transparent,
+                                width: 3,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            'Clients',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: selectedType == ContactType.client
+                                  ? theme.colorScheme.primary
+                                  : Colors.grey[600],
+                              fontWeight: selectedType == ContactType.client
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
-                      child: Text(
-                        'Clients',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: _selectedType == ContactType.client
-                              ? theme.colorScheme.primary
-                              : Colors.grey[600],
-                          fontWeight: _selectedType == ContactType.client
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 16,
-                        ),
-                      ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedType = ContactType.prospect;
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _selectedType == ContactType.prospect
-                                ? theme.colorScheme.primary
-                                : Colors.transparent,
-                            width: 3,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          cubit.changeTab(ContactType.prospect);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: selectedType == ContactType.prospect
+                                    ? theme.colorScheme.primary
+                                    : Colors.transparent,
+                                width: 3,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            'Prospects',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: selectedType == ContactType.prospect
+                                  ? theme.colorScheme.primary
+                                  : Colors.grey[600],
+                              fontWeight: selectedType == ContactType.prospect
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
-                      child: Text(
-                        'Prospects',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: _selectedType == ContactType.prospect
-                              ? theme.colorScheme.primary
-                              : Colors.grey[600],
-                          fontWeight: _selectedType == ContactType.prospect
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 16,
-                        ),
-                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
           // Contacts/Prospects list
           Expanded(
-            child: _selectedType == ContactType.client
-                ? _buildClientsList()
-                : _buildProspectsList(),
+            child: BlocBuilder<ContactsListCubit, ContactsListState>(
+              builder: (context, state) {
+                final cubit = context.read<ContactsListCubit>();
+                return cubit.selectedType == ContactType.client
+                    ? _buildClientsList(context)
+                    : _buildProspectsList(context);
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildClientsList() {
-    return FutureBuilder<List<Contact>>(
-      future: _contactsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+  Widget _buildClientsList(BuildContext context) {
+    return BlocBuilder<ContactsCubit, ContactsState>(
+      builder: (context, state) {
+        if (state is ContactsLoading) {
           return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
+        } else if (state is ContactsError) {
           return Center(child: Text('Erreur de chargement'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Text(
-              'Aucun client trouvé',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                fontSize: 18,
+        } else if (state is ContactsLoaded) {
+          final contacts = state.contacts;
+
+          if (contacts.isEmpty) {
+            return Center(
+              child: Text(
+                'Aucun client trouvé',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 18,
+                ),
               ),
-            ),
-          );
-        } else {
-          final contacts = snapshot.data!;
+            );
+          }
+
           return ListView.separated(
             padding: EdgeInsets.all(16),
             itemCount: contacts.length,
@@ -205,18 +205,18 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
               return ContactItem(
                 contact: contact,
                 onTap: () {
+                  // Pass contact ID instead of contact object
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ContactFormScreen(
-                        contact: contact,
-                        onEdit: (updated) async {
-                          await _contactRepository.updateContact(updated);
-                          _loadData();
-                        },
-                        onDelete: (id) async {
-                          await _contactRepository.deleteContact(id);
-                          _loadData();
-                        },
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<ContactsCubit>(),
+                        child: ContactFormScreen(
+                          contactId: contact.id, // Changed: pass ID
+                          onEdit: (updated) => context.read<ContactsCubit>().updateContact(updated),
+                          onDelete: (id) {
+                            context.read<ContactsCubit>().deleteContact(id);
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -226,30 +226,34 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
             separatorBuilder: (_, __) => SizedBox(height: 8),
           );
         }
+
+        return Center(child: Text('Aucun client trouvé'));
       },
     );
   }
 
-  Widget _buildProspectsList() {
-    return FutureBuilder<List<Prospect>>(
-      future: _prospectsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+  Widget _buildProspectsList(BuildContext context) {
+    return BlocBuilder<ProspectsCubit, ProspectsState>(
+      builder: (context, state) {
+        if (state is ProspectsLoading) {
           return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
+        } else if (state is ProspectsError) {
           return Center(child: Text('Erreur de chargement'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Text(
-              'Aucun prospect trouvé',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                fontSize: 18,
+        } else if (state is ProspectsLoaded) {
+          final prospects = state.prospects;
+
+          if (prospects.isEmpty) {
+            return Center(
+              child: Text(
+                'Aucun prospect trouvé',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 18,
+                ),
               ),
-            ),
-          );
-        } else {
-          final prospects = snapshot.data!;
+            );
+          }
+
           return ListView.separated(
             padding: EdgeInsets.all(16),
             itemCount: prospects.length,
@@ -257,30 +261,32 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
               final prospect = prospects[index];
               return ProspectItem(
                 prospect: prospect,
-                onTap: () async {
-                  // Fetch interlocuteurs for this prospect
-                  final interlocuteurs = await _getInterlocuteursForProspect(prospect.entreprise);
-                  
-                  await Navigator.of(context).push(
+                onTap: () {
+                  // Pass prospect ID instead of prospect object
+                  Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ProspectDetailFormScreen(
-                        prospect: prospect,
-                        onEdit: (updated) async {
-                          await _prospectRepository.updateProspect(updated);
-                          _loadData();
-                        },
-                        onDelete: (id) async {
-                          await _prospectRepository.deleteProspect(id);
-                          _loadData();
-                        },
-                        onConvertToClient: () async {
-                          // Delete the prospect and reload
-                          await _prospectRepository.deleteProspect(prospect.id);
-                          _loadData();
-                          Navigator.of(context).pop();
-                        },
-                        interlocuteurs: interlocuteurs,
-                        contactRepository: _contactRepository,
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: context.read<ContactsCubit>(),
+                          ),
+                          BlocProvider.value(
+                            value: context.read<ProspectsCubit>(),
+                          ),
+                        ],
+                        child: ProspectDetailFormScreen(
+                          prospectId: prospect.id, // Changed: pass ID
+                          onEdit: (updated) => context.read<ProspectsCubit>().updateProspect(updated),
+                          onDelete: (id) {
+                            context.read<ProspectsCubit>().deleteProspect(id);
+                          },
+                          onConvertToClient: () async {
+                            await context
+                                .read<ProspectsCubit>()
+                                .convertProspectToClient(prospect.id);
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -291,6 +297,8 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
             separatorBuilder: (_, __) => SizedBox(height: 8),
           );
         }
+
+        return Center(child: Text('Aucun prospect trouvé'));
       },
     );
   }

@@ -6,7 +6,7 @@ import '../../models/contact.dart';
 
 class CreateInterlocuteurForm extends StatefulWidget {
   final String prospectCompany;
-  final ValueChanged<Contact> onSave;
+  final Future<void> Function(Contact) onSave;
 
   const CreateInterlocuteurForm({
     super.key,
@@ -15,7 +15,8 @@ class CreateInterlocuteurForm extends StatefulWidget {
   });
 
   @override
-  State<CreateInterlocuteurForm> createState() => _CreateInterlocuteurFormState();
+  State<CreateInterlocuteurForm> createState() =>
+      _CreateInterlocuteurFormState();
 }
 
 class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
@@ -23,11 +24,19 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
   String _name = '';
   String _phoneNumber = '';
   String _email = '';
+  bool _isSubmitting = false;
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
-      
+      debugPrint(
+        '[CreateInterlocuteurForm] Creating new contact for ${widget.prospectCompany}',
+      );
+      FocusScope.of(context).unfocus();
+      setState(() {
+        _isSubmitting = true;
+      });
+
       final newContact = Contact(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _name,
@@ -36,8 +45,11 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
         company: widget.prospectCompany,
         type: ContactType.prospect,
       );
-      
-      widget.onSave(newContact);
+
+      await widget.onSave(newContact);
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -64,21 +76,24 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
             SizedBox(height: 16),
             TextFormField(
               decoration: InputDecoration(labelText: 'Nom *'),
-              validator: (value) => (value == null || value.isEmpty) ? 'Nom requis' : null,
+              validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Nom requis' : null,
               onSaved: (value) => _name = value ?? '',
             ),
             SizedBox(height: 16),
             TextFormField(
               decoration: InputDecoration(labelText: 'Téléphone *'),
               keyboardType: TextInputType.phone,
-              validator: (value) => (value == null || value.isEmpty) ? 'Téléphone requis' : null,
+              validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Téléphone requis' : null,
               onSaved: (value) => _phoneNumber = value ?? '',
             ),
             SizedBox(height: 16),
             TextFormField(
               decoration: InputDecoration(labelText: 'Email *'),
               keyboardType: TextInputType.emailAddress,
-              validator: (value) => (value == null || value.isEmpty) ? 'Email requis' : null,
+              validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Email requis' : null,
               onSaved: (value) => _email = value ?? '',
             ),
             SizedBox(height: 16),
@@ -90,10 +105,13 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _submit,
+                onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 child: Text('Créer'),
               ),
