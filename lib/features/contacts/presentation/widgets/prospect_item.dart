@@ -9,13 +9,7 @@ class ProspectItem extends StatelessWidget {
   final Prospect prospect;
   final VoidCallback onTap;
 
-  const ProspectItem({
-    super.key,
-    required this.prospect,
-    required this.onTap,
-  });
-
-
+  const ProspectItem({super.key, required this.prospect, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +69,7 @@ class ProspectItem extends StatelessWidget {
                 ),
               ),
               // Chevron icon
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-                size: 24,
-              ),
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 24),
             ],
           ),
         ),

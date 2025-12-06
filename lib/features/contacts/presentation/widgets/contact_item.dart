@@ -9,11 +9,7 @@ class ContactItem extends StatelessWidget {
   final Contact contact;
   final VoidCallback onTap;
 
-  const ContactItem({
-    super.key,
-    required this.contact,
-    required this.onTap,
-  });
+  const ContactItem({super.key, required this.contact, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +28,9 @@ class ContactItem extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 26,
-                backgroundColor:
-                    isProspect ? AppColors.secondary : AppColors.primary,
+                backgroundColor: isProspect
+                    ? AppColors.secondary
+                    : AppColors.primary,
                 child: Text(
                   ContactUtils.getInitials(contact.name),
                   style: TextStyle(
@@ -86,11 +83,7 @@ class ContactItem extends StatelessWidget {
                 ),
               ),
 
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-                size: 24,
-              ),
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 24),
             ],
           ),
         ),
