@@ -290,6 +290,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                       ),
                     ),
                   );
+                  _loadData();
                 },
               );
             },

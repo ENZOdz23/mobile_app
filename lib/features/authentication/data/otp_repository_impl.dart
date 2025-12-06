@@ -8,6 +8,9 @@ import '../../../core/api/api_client.dart';
 class OtpRepositoryImpl implements OtpRepository {
   @override
   Future<bool> verifyOtp(Otp otp) async {
+    // TODO: Remove this bypass when server is up
+    return true; 
+    /*
     try {
       debugPrint(
         'otp_repository_impl: verifying otp for phone=${otp.phoneNumber}, code=${otp.code}',
@@ -21,6 +24,7 @@ class OtpRepositoryImpl implements OtpRepository {
     } catch (_) {
       return false;
     }
+    */
   }
 
   @override

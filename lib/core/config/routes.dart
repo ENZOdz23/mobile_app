@@ -15,6 +15,17 @@ import '../../features/more/presentation/screens/privacy_screen.dart';
 import '../../features/more/presentation/screens/help_screen.dart';
 import '../../features/more/presentation/screens/about_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/contacts/presentation/widgets/add_contact_form.dart';
+import '../../features/contacts/presentation/widgets/add_prospect_form.dart';
+import '../../features/contacts/presentation/cubit/add_contact_cubit.dart';
+import '../../features/contacts/presentation/cubit/add_prospect_cubit.dart';
+import '../../features/contacts/data/contacts_repository_impl.dart';
+import '../../features/contacts/data/contacts_local_data_source.dart';
+import '../../features/contacts/data/prospect_repository_impl.dart';
+import '../../features/contacts/data/prospect_local_data_source.dart';
+import '../../features/contacts/domain/add_contact_use_case.dart';
+import '../../features/contacts/domain/add_prospect_use_case.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/home/presentation/screens/kpis_screen.dart';
 import '../../features/home/presentation/screens/goals_screen.dart';
 import '../../features/home/presentation/screens/recent_activities_screen.dart';
@@ -41,6 +52,9 @@ class AppRoutes {
   static const String recentActivities = '/recent-activities';
   static const String addProspect = '/add-prospect';
   static const String planMeeting = '/plan-meeting';
+
+  static const String addContact = '/add-contact';
+  static const String addProspect = '/add-prospect';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -97,6 +111,43 @@ class AppRoutes {
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationsScreen());
 
+      case addContact:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => AddContactCubit(
+              AddContactUseCase(
+                ContactsRepositoryImpl(localDataSource: ContactsLocalDataSource()),
+              ),
+            ),
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Ajouter un contact'),
+                backgroundColor: const Color(0xFF009640), // AppColors.primary
+                foregroundColor: Colors.white,
+              ),
+              body: const AddContactForm(),
+            ),
+          ),
+        );
+
+      case addProspect:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => AddProspectCubit(
+              AddProspectUseCase(
+                ProspectRepositoryImpl(localDataSource: ProspectsLocalDataSource()),
+              ),
+            ),
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Ajouter un prospect'),
+                backgroundColor: const Color(0xFF009640), // AppColors.primary
+                foregroundColor: Colors.white,
+              ),
+              body: const AddProspectForm(),
+            ),
+          ),
+        );
       case kpis:
         return MaterialPageRoute(builder: (_) => const KPIsScreen());
 
