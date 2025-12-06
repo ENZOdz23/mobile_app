@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../domain/get_offers_use_case.dart';
+import '../domain/get_offer_detail_use_case.dart';
 import '../domain/get_banners_use_case.dart';
 import '../models/offer_model.dart';
 import '../models/banner_model.dart';
@@ -7,6 +8,7 @@ import '../data/offer_repository.dart';
 import '../data/banner_repository.dart';
 import 'widgets/banner_carousel.dart';
 import 'widgets/offer_card.dart';
+import 'dialogs/offer_detail_dialog.dart';
 import '../../../shared/components/base_scaffold.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/config/routes.dart';
@@ -21,14 +23,28 @@ class OffresScreen extends StatefulWidget {
 class _OffresScreenState extends State<OffresScreen> {
   late Future<List<OfferModel>> offers;
   late Future<List<BannerModel>> banners;
+  late final OfferRepository _offerRepository;
+  late final GetOfferDetailUseCase _getOfferDetailUseCase;
 
   @override
   void initState() {
     super.initState();
-    final offerRepository = OfferRepository();
+    _offerRepository = OfferRepository();
     final bannerRepository = BannerRepository();
-    offers = GetOffersUseCase(offerRepository).execute();
+    _getOfferDetailUseCase = GetOfferDetailUseCase(_offerRepository);
+    offers = GetOffersUseCase(_offerRepository).execute();
     banners = GetBannersUseCase(bannerRepository).execute();
+  }
+
+  /// Handle offer card tap: fetch detail and show dialog.
+  Future<void> _handleOfferTap(String offerId) async {
+    final offerDetail = await _getOfferDetailUseCase.execute(offerId);
+    if (offerDetail != null && mounted) {
+      showDialog(
+        context: context,
+        builder: (ctx) => OfferDetailDialog(offer: offerDetail),
+      );
+    }
   }
 
   @override
@@ -38,41 +54,45 @@ class _OffresScreenState extends State<OffresScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             FutureBuilder<List<BannerModel>>(
               future: banners,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return CircularProgressIndicator();
+                if (!snapshot.hasData) return const CircularProgressIndicator();
                 var bannerImages = snapshot.data!
                     .map((b) => b.imageUrl)
                     .toList();
                 return BannerCarousel(imageUrls: bannerImages);
               },
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             Text('Offres', style: AppTextStyles.headlineMedium),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             FutureBuilder<List<OfferModel>>(
               future: offers,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return CircularProgressIndicator();
+                if (!snapshot.hasData) return const CircularProgressIndicator();
                 var offerList = snapshot.data!;
                 return SizedBox(
-                  height: 244, // or as tall as you want that section
+                  height: 244,
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // 3 cards per row (set 3, 4 if wanted)
-                      crossAxisSpacing: 8, // space between columns
-                      mainAxisSpacing: 8, // space between rows
-                      childAspectRatio:
-                          0.85, // width/height ratio, tweak for card proportion
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 0.85,
+                        ),
                     itemCount: offerList.length,
-                    physics:
-                        BouncingScrollPhysics(), // adds nice iOS-like bounce
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    itemBuilder: (context, index) =>
-                        OfferCard(offer: offerList[index]),
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemBuilder: (context, index) {
+                      final offer = offerList[index];
+                      return OfferCard(
+                        offer: offer,
+                        onTap: () => _handleOfferTap(offer.id),
+                      );
+                    },
                   ),
                 );
               },
@@ -80,20 +100,7 @@ class _OffresScreenState extends State<OffresScreen> {
           ],
         ),
       ),
-      currentIndex: 2,
-      onNavTap: (int index) {
-        if (index == 1) {
-          // Contacts tab
-          Navigator.pushReplacementNamed(context, AppRoutes.contacts);
-        } else if (index == 3) {
-          // More tab
-          Navigator.pushReplacementNamed(context, AppRoutes.more);
-        }
-        if (index == 0) {
-          // home
-          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-        }
-      },
+      // Navigation handled by BaseScaffold
     );
   }
 }

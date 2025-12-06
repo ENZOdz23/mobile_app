@@ -16,37 +16,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-  void _onNavTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        // Already on home
-        break;
-      case 1:
-        Navigator.pushNamed(context, AppRoutes.contacts);
-        break;
-      case 2:
-        Navigator.pushNamed(context, AppRoutes.offres);
-        break;
-      case 3:
-        Navigator.pushNamed(context, AppRoutes.more);
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      title: 'Tableau de bord',
-      currentIndex: _currentIndex,
-      onNavTap: _onNavTap,
-      body: const DashboardBody(),
-    );
+    return BaseScaffold(title: 'Tableau de bord', body: const DashboardBody());
   }
 }
 

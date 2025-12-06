@@ -57,18 +57,6 @@ class _ContactsListScreenContent extends StatelessWidget {
     final theme = Theme.of(context);
 
     return BaseScaffold(
-      currentIndex: 1,
-      onNavTap: (index) {
-        if (index == 2) {
-          Navigator.pushReplacementNamed(context, AppRoutes.offres);
-        }
-        if (index == 0) {
-          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-        }
-        if (index == 3) {
-          Navigator.pushReplacementNamed(context, AppRoutes.more);
-        }
-      },
       title: 'Liste des Contacts',
       body: Column(
         children: [

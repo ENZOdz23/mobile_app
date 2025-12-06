@@ -175,8 +175,6 @@ class _ChangeEntrepriseStatePageState extends State<ChangeEntrepriseStatePage> {
           ],
         ),
       ),
-      currentIndex: 0,
-      onNavTap: (int index) {},
     );
   }
 }

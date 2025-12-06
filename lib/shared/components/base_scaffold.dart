@@ -9,15 +9,11 @@ import '../../core/config/routes.dart';
 class BaseScaffold extends StatefulWidget {
   final String title;
   final Widget body;
-  final int currentIndex;
-  final ValueChanged<int>? onNavTap;
   final bool showBottomNav;
 
   const BaseScaffold({
     required this.title,
     required this.body,
-    this.currentIndex = 0,
-    this.onNavTap,
     this.showBottomNav = true,
     super.key,
   });
@@ -28,6 +24,7 @@ class BaseScaffold extends StatefulWidget {
 
 class _BaseScaffoldState extends State<BaseScaffold> {
   bool _showMenu = false;
+  int _currentIndex = 0;
 
   void _toggleMenu() {
     setState(() {
@@ -53,6 +50,13 @@ class _BaseScaffoldState extends State<BaseScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    // determine current index from current route
+    final routeName = ModalRoute.of(context)?.settings.name;
+    debugPrint(
+      'BaseScaffold routeName: $routeName, widget: ${widget.runtimeType}',
+    );
+    _currentIndex = _routeToIndex(routeName, widget);
+
     return Scaffold(
       appBar: CustomAppBar(title: widget.title),
       body: Stack(
@@ -97,8 +101,9 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       ),
       bottomNavigationBar: widget.showBottomNav
           ? CustomBottomNavBar(
-              currentIndex: widget.currentIndex,
-              onTap: widget.onNavTap ?? (_) {},
+              selectedIndex: _currentIndex,
+              iconColors: _getIconColors(context, _currentIndex),
+              onTap: _onNavTap,
             )
           : null,
       floatingActionButton: widget.showBottomNav
@@ -109,6 +114,59 @@ class _BaseScaffoldState extends State<BaseScaffold> {
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
+  }
+
+  int _routeToIndex(String? routeName, BaseScaffold widget) {
+    switch (routeName) {
+      case AppRoutes.dashboard:
+        return 0;
+      case AppRoutes.contacts:
+        return 1;
+      case AppRoutes.offres:
+        return 2;
+      case AppRoutes.more:
+        return 3;
+      default:
+        // Fallback: try to infer from widget.title
+        final title = widget.title.toLowerCase();
+        if (title.contains('contact')) return 1;
+        if (title.contains('offre')) return 2;
+        if (title.contains('plus') || title.contains('more')) return 3;
+        return 0;
+    }
+  }
+
+  List<Color> _getIconColors(BuildContext context, int selectedIndex) {
+    final theme = Theme.of(context);
+    final selectedColor = theme.colorScheme.primary;
+    final unselectedColor = theme.colorScheme.onSurface.withOpacity(0.6);
+    return List.generate(
+      4,
+      (i) => i == selectedIndex ? selectedColor : unselectedColor,
+    );
+  }
+
+  void _onNavTap(int index) {
+    String target = AppRoutes.dashboard;
+    switch (index) {
+      case 0:
+        target = AppRoutes.dashboard;
+        break;
+      case 1:
+        target = AppRoutes.contacts;
+        break;
+      case 2:
+        target = AppRoutes.offres;
+        break;
+      case 3:
+        target = AppRoutes.more;
+        break;
+    }
+
+    final routeName = ModalRoute.of(context)?.settings.name;
+    if (routeName == target) return; // already on target
+
+    Navigator.of(context).pushNamedAndRemoveUntil(target, (route) => false);
   }
 
   Widget _buildMenuItem(String title, IconData icon) {
