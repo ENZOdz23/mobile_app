@@ -1,37 +1,27 @@
 // lib/features/prospects/models/prospect.dart
 
 enum ProspectStatus {
-  interested,      // Intéressé
-  notInterested,   // Non intéressé
-  notCompleted,    // Non abouti
-  prospect,        // Prospect
-  client,          // Converted to client
+  interested,
+  notInterested,
+  notCompleted,
+  prospect,
+  client,
 }
 
 class Prospect {
   final String id;
-  
-  // Base Information
   final String entreprise;
   final String adresse;
   final String wilaya;
   final String commune;
-  
-  // Personal Information (Contact)
   final String phoneNumber;
   final String email;
-  
-  // Business Information
   final String categorie;
   final String formeLegale;
   final String secteur;
   final String sousSecteur;
-  
-  // Legal Information
   final String nif;
   final String registreCommerce;
-  
-  // Status
   final ProspectStatus status;
 
   Prospect({
@@ -51,6 +41,7 @@ class Prospect {
     this.status = ProspectStatus.prospect,
   });
 
+  // fromJson for API responses
   factory Prospect.fromJson(Map<String, dynamic> json) {
     return Prospect(
       id: json['id'] as String,
@@ -70,6 +61,7 @@ class Prospect {
     );
   }
 
+  // toJson for API requests
   Map<String, dynamic> toJson() => {
     'id': id,
     'entreprise': entreprise,
@@ -86,6 +78,46 @@ class Prospect {
     'registreCommerce': registreCommerce,
     'status': _statusToString(status),
   };
+
+  // fromMap for SQLite
+  factory Prospect.fromMap(Map<String, dynamic> map) {
+    return Prospect(
+      id: map['id'] as String,
+      entreprise: map['entreprise'] as String,
+      adresse: map['adresse'] as String? ?? '',
+      wilaya: map['wilaya'] as String? ?? '',
+      commune: map['commune'] as String? ?? '',
+      phoneNumber: map['phoneNumber'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      categorie: map['categorie'] as String? ?? '',
+      formeLegale: map['formeLegale'] as String? ?? '',
+      secteur: map['secteur'] as String? ?? '',
+      sousSecteur: map['sousSecteur'] as String? ?? '',
+      nif: map['nif'] as String? ?? '',
+      registreCommerce: map['registreCommerce'] as String? ?? '',
+      status: _statusFromString(map['status'] as String?),
+    );
+  }
+
+  // toMap for SQLite
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'entreprise': entreprise,
+      'adresse': adresse,
+      'wilaya': wilaya,
+      'commune': commune,
+      'phoneNumber': phoneNumber,
+      'email': email,
+      'categorie': categorie,
+      'formeLegale': formeLegale,
+      'secteur': secteur,
+      'sousSecteur': sousSecteur,
+      'nif': nif,
+      'registreCommerce': registreCommerce,
+      'status': _statusToString(status),
+    };
+  }
 
   static ProspectStatus _statusFromString(String? status) {
     switch (status) {
@@ -130,5 +162,39 @@ class Prospect {
       case ProspectStatus.prospect:
         return 'Prospect';
     }
+  }
+
+  Prospect copyWith({
+    String? id,
+    String? entreprise,
+    String? adresse,
+    String? wilaya,
+    String? commune,
+    String? phoneNumber,
+    String? email,
+    String? categorie,
+    String? formeLegale,
+    String? secteur,
+    String? sousSecteur,
+    String? nif,
+    String? registreCommerce,
+    ProspectStatus? status,
+  }) {
+    return Prospect(
+      id: id ?? this.id,
+      entreprise: entreprise ?? this.entreprise,
+      adresse: adresse ?? this.adresse,
+      wilaya: wilaya ?? this.wilaya,
+      commune: commune ?? this.commune,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      email: email ?? this.email,
+      categorie: categorie ?? this.categorie,
+      formeLegale: formeLegale ?? this.formeLegale,
+      secteur: secteur ?? this.secteur,
+      sousSecteur: sousSecteur ?? this.sousSecteur,
+      nif: nif ?? this.nif,
+      registreCommerce: registreCommerce ?? this.registreCommerce,
+      status: status ?? this.status,
+    );
   }
 }

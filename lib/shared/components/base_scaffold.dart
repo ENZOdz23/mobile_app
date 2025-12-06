@@ -36,9 +36,16 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     setState(() {
       _showMenu = false;
     });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('$item sélectionné')));
+    
+    if (item == 'Ajouter un prospect') {
+      Navigator.of(context).pushNamed(AppRoutes.addProspect);
+    } else if (item == 'Ajouter un contact') {
+      Navigator.of(context).pushNamed(AppRoutes.addContact);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$item sélectionné')));
+    }
   }
 
   @override
