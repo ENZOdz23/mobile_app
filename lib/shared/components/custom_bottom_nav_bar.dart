@@ -2,12 +2,14 @@
 import 'package:flutter/material.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
-  final int currentIndex;
+  final int selectedIndex;
+  final List<Color> iconColors;
   final ValueChanged<int> onTap;
 
   const CustomBottomNavBar({
     super.key,
-    required this.currentIndex,
+    required this.selectedIndex,
+    required this.iconColors,
     required this.onTap,
   });
 
@@ -35,13 +37,8 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 
   Widget _buildNavItem(IconData icon, int index) {
-    final isSelected = currentIndex == index;
     return IconButton(
-      icon: Icon(
-        icon,
-        color: isSelected ? const Color(0xFF4CAF50) : Colors.grey,
-        size: 28,
-      ),
+      icon: Icon(icon, color: iconColors[index], size: 28),
       onPressed: () => onTap(index),
     );
   }
