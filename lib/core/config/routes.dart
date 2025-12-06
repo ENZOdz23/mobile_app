@@ -54,10 +54,16 @@ class AppRoutes {
         );
 
       case dashboard:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+          settings: RouteSettings(name: dashboard),
+        );
 
       case offres:
-        return MaterialPageRoute(builder: (_) => const OffresScreen());
+        return MaterialPageRoute(
+          builder: (_) => const OffresScreen(),
+          settings: RouteSettings(name: offres),
+        );
 
       case changeEntrepriseState:
         return MaterialPageRoute(
@@ -68,16 +74,26 @@ class AppRoutes {
               CompanyRepositoryImpl(),
             ),
           ),
+          settings: RouteSettings(name: changeEntrepriseState),
         );
 
       case contacts:
-        return MaterialPageRoute(builder: (_) => ContactsListScreen());
+        return MaterialPageRoute(
+          builder: (_) => ContactsListScreen(),
+          settings: RouteSettings(name: contacts),
+        );
 
       case calendar:
-        return MaterialPageRoute(builder: (_) => CalendarScreen());
+        return MaterialPageRoute(
+          builder: (_) => CalendarScreen(),
+          settings: RouteSettings(name: calendar),
+        );
 
       case more:
-        return MaterialPageRoute(builder: (_) => const MoreScreen());
+        return MaterialPageRoute(
+          builder: (_) => const MoreScreen(),
+          settings: RouteSettings(name: more),
+        );
 
       case wallet:
         return MaterialPageRoute(builder: (_) => const WalletScreen());

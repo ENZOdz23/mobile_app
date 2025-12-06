@@ -40,27 +40,11 @@ class MoreScreenView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: 'Plus',
-      currentIndex: 3,
-      onNavTap: (index) {
-        if (index == 2) {
-          // Home tab
-          Navigator.pushReplacementNamed(context, AppRoutes.offres);
-        } else if (index == 1) {
-          // Contacts tab
-          Navigator.pushReplacementNamed(context, AppRoutes.contacts);
-        } else if (index == 0) {
-          // home
-          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-        }
-        // index == 3 is current screen (More), so no action needed
-      },
       body: BlocBuilder<MoreCubit, MoreState>(
         builder: (context, state) {
           if (state is MoreLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
 
@@ -69,11 +53,7 @@ class MoreScreenView extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red,
-                  ),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(state.message),
                   const SizedBox(height: 16),
@@ -94,14 +74,14 @@ class MoreScreenView extends StatelessWidget {
             final profile = state is MoreLoaded
                 ? state.userProfile
                 : state is NetworkSpeedTesting
-                    ? state.userProfile
-                    : (state as NetworkSpeedTested).userProfile;
+                ? state.userProfile
+                : (state as NetworkSpeedTested).userProfile;
 
             final networkSpeed = state is MoreLoaded
                 ? state.networkSpeed
                 : state is NetworkSpeedTested
-                    ? state.networkSpeed
-                    : null;
+                ? state.networkSpeed
+                : null;
 
             final isTestingSpeed = state is NetworkSpeedTesting;
 
@@ -112,7 +92,8 @@ class MoreScreenView extends StatelessWidget {
                   ProfileHeader(profile: profile),
                   const SizedBox(height: 16),
                   NetworkSpeedCard(
-                    speed: networkSpeed?.copyWith(isLoading: isTestingSpeed) ??
+                    speed:
+                        networkSpeed?.copyWith(isLoading: isTestingSpeed) ??
                         NetworkSpeed(isLoading: false),
                     onTest: () {
                       context.read<MoreCubit>().testNetworkSpeed();
