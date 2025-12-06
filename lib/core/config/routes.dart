@@ -125,7 +125,7 @@ class AppRoutes {
           builder: (_) => BlocProvider(
             create: (context) => AddProspectCubit(
               AddProspectUseCase(
-                ProspectsRepositoryImpl(localDataSource: ProspectsLocalDataSource()),
+                ProspectRepositoryImpl(localDataSource: ProspectsLocalDataSource()),
               ),
             ),
             child: Scaffold(

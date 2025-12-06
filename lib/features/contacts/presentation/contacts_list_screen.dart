@@ -41,7 +41,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     _contactRepository = ContactsRepositoryImpl(
       localDataSource: ContactsLocalDataSource(),
     );
-    _prospectRepository = ProspectsRepositoryImpl(
+    _prospectRepository = ProspectRepositoryImpl(
       localDataSource: ProspectsLocalDataSource(),
     );
     _getContactsUseCase = GetContactsUseCase(_contactRepository);

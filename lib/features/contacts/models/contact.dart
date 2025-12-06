@@ -11,7 +11,7 @@ class Contact {
   final String phoneNumber;
   final String email;
   final String company;
-  final ContactType type; // NEW FIELD
+  final ContactType type;
 
   Contact({
     required this.id,
@@ -19,9 +19,10 @@ class Contact {
     required this.phoneNumber,
     required this.email,
     this.company = '',
-    this.type = ContactType.client, // DEFAULT TO CLIENT
+    this.type = ContactType.client,
   });
 
+  // fromJson for API responses
   factory Contact.fromJson(Map<String, dynamic> json) {
     return Contact(
       id: json['id'] as String,
@@ -33,6 +34,7 @@ class Contact {
     );
   }
 
+  // toJson for API requests
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -41,4 +43,46 @@ class Contact {
     'company': company,
     'type': type == ContactType.prospect ? 'prospect' : 'client',
   };
+
+  // fromMap for SQLite
+  factory Contact.fromMap(Map<String, dynamic> map) {
+    return Contact(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      phoneNumber: map['phoneNumber'] as String,
+      email: map['email'] as String,
+      company: map['company'] as String? ?? '',
+      type: map['type'] == 'prospect' ? ContactType.prospect : ContactType.client,
+    );
+  }
+
+  // toMap for SQLite
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'phoneNumber': phoneNumber,
+      'email': email,
+      'company': company,
+      'type': type == ContactType.prospect ? 'prospect' : 'client',
+    };
+  }
+
+  Contact copyWith({
+    String? id,
+    String? name,
+    String? phoneNumber,
+    String? email,
+    String? company,
+    ContactType? type,
+  }) {
+    return Contact(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      email: email ?? this.email,
+      company: company ?? this.company,
+      type: type ?? this.type,
+    );
+  }
 }
