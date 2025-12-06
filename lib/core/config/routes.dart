@@ -17,8 +17,8 @@ import '../../features/more/presentation/screens/about_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/contacts/presentation/widgets/add_contact_form.dart';
 import '../../features/contacts/presentation/widgets/add_prospect_form.dart';
-import '../../features/contacts/presentation/cubit/add_contact_cubit.dart';
-import '../../features/contacts/presentation/cubit/add_prospect_cubit.dart';
+import '../../features/contacts/presentation/cubits/add_contact_cubit.dart';
+import '../../features/contacts/presentation/cubits/add_prospect_cubit.dart';
 import '../../features/contacts/data/contacts_repository_impl.dart';
 import '../../features/contacts/data/contacts_local_data_source.dart';
 import '../../features/contacts/data/prospect_repository_impl.dart';
@@ -54,7 +54,6 @@ class AppRoutes {
   static const String planMeeting = '/plan-meeting';
 
   static const String addContact = '/add-contact';
-  static const String addProspect = '/add-prospect';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../models/contact.dart';
 import '../../../../shared/validators/contact_validator.dart';
-import '../cubit/add_contact_cubit.dart';
-import '../cubit/add_contact_state.dart';
+import '../cubits/add_contact_cubit.dart';
+import '../cubits/add_contact_state.dart';
 
 class AddContactForm extends StatefulWidget {
   const AddContactForm({super.key});
