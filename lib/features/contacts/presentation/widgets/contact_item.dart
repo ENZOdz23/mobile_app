@@ -9,11 +9,7 @@ class ContactItem extends StatelessWidget {
   final Contact contact;
   final VoidCallback onTap;
 
-  const ContactItem({
-    super.key,
-    required this.contact,
-    required this.onTap,
-  });
+  const ContactItem({super.key, required this.contact, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +28,9 @@ class ContactItem extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 26,
-                backgroundColor:
-                    isProspect ? AppColors.secondary : AppColors.primary,
+                backgroundColor: isProspect
+                    ? AppColors.secondary
+                    : AppColors.primary,
                 child: Text(
                   ContactUtils.getInitials(contact.name),
                   style: TextStyle(
@@ -50,7 +47,7 @@ class ContactItem extends StatelessWidget {
                   children: [
                     Text(
                       contact.name,
-                      style: AppTextStyles.bodyLarge?.copyWith(
+                      style: AppTextStyles.bodyLarge.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.secondary,
                         fontSize: 16,
@@ -63,7 +60,7 @@ class ContactItem extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         contact.company,
-                        style: AppTextStyles.bodyMedium?.copyWith(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.grey[600],
                           fontSize: 13,
                         ),
@@ -75,7 +72,7 @@ class ContactItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Mobile: ${contact.phoneNumber}',
-                      style: AppTextStyles.bodyMedium?.copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.grey[600],
                         fontSize: 13,
                       ),
@@ -86,11 +83,7 @@ class ContactItem extends StatelessWidget {
                 ),
               ),
 
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-                size: 24,
-              ),
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 24),
             ],
           ),
         ),
