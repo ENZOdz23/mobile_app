@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../models/prospect.dart';
-import '../cubit/add_prospect_cubit.dart';
-import '../cubit/add_prospect_state.dart';
+import '../cubits/add_prospect_cubit.dart';
+import '../cubits/add_prospect_state.dart';
 
 class AddProspectForm extends StatefulWidget {
   const AddProspectForm({super.key});

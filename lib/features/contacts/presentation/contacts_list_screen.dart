@@ -15,7 +15,6 @@ import '../data/prospect_repository_impl.dart';
 import 'cubits/contacts_cubit.dart';
 import 'cubits/prospects_cubit.dart';
 import 'cubits/contacts_list_cubit.dart';
-import 'cubits/contacts_list_cubit.dart' show ContactType;
 
 class ContactsListScreen extends StatelessWidget {
   @override
@@ -24,7 +23,7 @@ class ContactsListScreen extends StatelessWidget {
     final contactRepository = ContactsRepositoryImpl(
       localDataSource: ContactsLocalDataSource(),
     );
-    final prospectRepository = ProspectsRepositoryImpl(
+    final prospectRepository = ProspectRepositoryImpl(
       localDataSource: ProspectsLocalDataSource(),
     );
     final getContactsUseCase = GetContactsUseCase(contactRepository);
@@ -278,7 +277,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                       ),
                     ),
                   );
-                  _loadData();
+                  _loadData(context);
                 },
               );
             },
@@ -289,5 +288,10 @@ class _ContactsListScreenContent extends StatelessWidget {
         return Center(child: Text('Aucun prospect trouvé'));
       },
     );
+  }
+  
+  void _loadData(BuildContext context) {
+    context.read<ContactsCubit>().loadContacts();
+    context.read<ProspectsCubit>().loadProspects();
   }
 }
