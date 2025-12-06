@@ -7,11 +7,11 @@ class StatusDropdown extends StatelessWidget {
   final ValueChanged<StateModel?> onChanged;
 
   const StatusDropdown({
-    Key? key,
+    super.key,
     required this.states,
     required this.selectedState,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class StatusDropdown extends StatelessWidget {
         labelText: 'Sélectionner un état',
         border: OutlineInputBorder(),
       ),
-      value: selectedState,
+      initialValue: selectedState,
       items: states
           .map(
             (state) => DropdownMenuItem(

@@ -15,11 +15,11 @@ class ContactFormScreen extends StatefulWidget {
   final Function(String) onDelete;
 
   const ContactFormScreen({
-    Key? key,
+    super.key,
     required this.contact,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   State<ContactFormScreen> createState() => _ContactFormScreenState();

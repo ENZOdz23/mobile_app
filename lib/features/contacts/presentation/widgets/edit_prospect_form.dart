@@ -3,9 +3,6 @@
 import 'package:crm_sales_performance_mobilis/features/contacts/models/prospect.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
-import '../../../prospects/models/prospect.dart';
-import '../../data/prospect_local_data_source.dart';
-import '../../data/prospect_repository_impl.dart';
 
 class EditProspectForm extends StatefulWidget {
   final Prospect initialProspect;

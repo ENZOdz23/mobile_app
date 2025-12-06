@@ -12,18 +12,18 @@ class LoginRepositoryImpl implements LoginRepository {
       final status = resp.statusCode ?? 0;
       if (status < 200 || status >= 300) {
         // Include full response body when available to aid debugging
-        final body = resp.data != null ? resp.data.toString() : null;
+        final body = resp.data?.toString();
         final msg = (resp.data is Map && resp.data['message'] != null)
             ? resp.data['message'].toString()
             : (body ?? 'Failed to request OTP (status $status)');
         throw Exception(msg);
       }
-    } on DioError catch (err) {
+    } on DioException catch (err) {
       // Prefer server-provided message when available; otherwise include full body
       final respData = err.response?.data;
       final serverMsg = (respData is Map && respData['message'] != null)
           ? respData['message']?.toString()
-          : (respData != null ? respData.toString() : null);
+          : (respData?.toString());
       throw Exception(
         serverMsg ?? err.message ?? 'Network error while requesting OTP',
       );

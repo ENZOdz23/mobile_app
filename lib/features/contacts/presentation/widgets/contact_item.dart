@@ -50,7 +50,7 @@ class ContactItem extends StatelessWidget {
                   children: [
                     Text(
                       contact.name,
-                      style: AppTextStyles.bodyLarge?.copyWith(
+                      style: AppTextStyles.bodyLarge.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.secondary,
                         fontSize: 16,
@@ -63,7 +63,7 @@ class ContactItem extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         contact.company,
-                        style: AppTextStyles.bodyMedium?.copyWith(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.grey[600],
                           fontSize: 13,
                         ),
@@ -75,7 +75,7 @@ class ContactItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Mobile: ${contact.phoneNumber}',
-                      style: AppTextStyles.bodyMedium?.copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.grey[600],
                         fontSize: 13,
                       ),

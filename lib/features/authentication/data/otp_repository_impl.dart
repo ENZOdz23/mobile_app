@@ -33,7 +33,7 @@ class OtpRepositoryImpl implements OtpRepository {
         'otp_repository_impl: resendOtp response status=$status body=${resp.data}',
       );
       if (status < 200 || status >= 300) {
-        final body = resp.data != null ? resp.data.toString() : null;
+        final body = resp.data?.toString();
         throw Exception(body ?? 'Failed to resend OTP (status $status)');
       }
     } catch (e) {

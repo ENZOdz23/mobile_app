@@ -22,6 +22,8 @@ import '../../home/presentation/home_screen.dart';
 enum ContactType { client, prospect }
 
 class ContactsListScreen extends StatefulWidget {
+  const ContactsListScreen({super.key});
+
   @override
   _ContactsListScreenState createState() => _ContactsListScreenState();
 }

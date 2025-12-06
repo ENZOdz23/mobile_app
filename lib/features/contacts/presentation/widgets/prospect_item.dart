@@ -51,7 +51,7 @@ class ProspectItem extends StatelessWidget {
                   children: [
                     Text(
                       prospect.entreprise,
-                      style: AppTextStyles.bodyLarge?.copyWith(
+                      style: AppTextStyles.bodyLarge.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.secondary,
                         fontSize: 16,
@@ -63,7 +63,7 @@ class ProspectItem extends StatelessWidget {
                       SizedBox(height: 4),
                       Text(
                         prospect.adresse,
-                        style: AppTextStyles.bodyMedium?.copyWith(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.grey[600],
                           fontSize: 13,
                         ),
