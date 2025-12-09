@@ -271,7 +271,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                             await context
                                 .read<ProspectsCubit>()
                                 .convertProspectToClient(prospect.id);
-                            Navigator.of(context).pop();
+                             // Navigator.of(context).pop(); // Removed to prevent double pop
                           },
                         ),
                       ),

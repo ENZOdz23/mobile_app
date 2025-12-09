@@ -66,7 +66,7 @@ class ProspectDetailFormScreen extends StatelessWidget {
 
     if (confirm == true) {
       onDelete(prospect.id);
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop(); // Removed to prevent double pop (handled by BlocListener)
     }
   }
 
