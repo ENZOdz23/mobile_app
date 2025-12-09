@@ -41,21 +41,64 @@ class ContactsCubit extends Cubit<ContactsState> {
     }
   }
 
+  Future<void> addContact(Contact contact) async {
+    try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ContactsLoaded) {
+        // Add contact to current list
+        final updatedContacts = [...currentState.contacts, contact];
+        // Emit the updated state immediately
+        emit(ContactsLoaded(updatedContacts));
+      }
+      // Then persist to database
+      await contactsRepository.addContact(contact);
+    } catch (e) {
+      emit(ContactsError('Failed to add contact: ${e.toString()}'));
+      // Reload to revert on error
+      await loadContacts();
+    }
+  }
+
   Future<void> updateContact(Contact contact) async {
     try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ContactsLoaded) {
+        // Update contact in current list
+        final updatedContacts = currentState.contacts.map((c) {
+          return c.id == contact.id ? contact : c;
+        }).toList();
+        // Emit the updated state immediately
+        emit(ContactsLoaded(updatedContacts));
+      }
+      // Then persist to database
       await contactsRepository.updateContact(contact);
-      await loadContacts(); // Reload contacts after update
     } catch (e) {
       emit(ContactsError('Failed to update contact: ${e.toString()}'));
+      // Reload to revert on error
+      await loadContacts();
     }
   }
 
   Future<void> deleteContact(String id) async {
     try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ContactsLoaded) {
+        // Remove contact from current list
+        final updatedContacts = currentState.contacts
+            .where((contact) => contact.id != id)
+            .toList();
+        // Emit the updated state immediately
+        emit(ContactsLoaded(updatedContacts));
+      }
+      // Then persist to database
       await contactsRepository.deleteContact(id);
-      await loadContacts(); // Reload contacts after delete
     } catch (e) {
       emit(ContactsError('Failed to delete contact: ${e.toString()}'));
+      // Reload to revert on error
+      await loadContacts();
     }
   }
 

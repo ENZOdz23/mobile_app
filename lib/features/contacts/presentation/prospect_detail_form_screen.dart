@@ -189,10 +189,8 @@ class ProspectDetailFormScreen extends StatelessWidget {
       builder: (context) => CreateInterlocuteurForm(
         prospectCompany: prospect.entreprise,
         onSave: (newContact) async {
-          await context.read<ContactsCubit>().contactsRepository.addContact(
-            newContact,
-          );
-          await context.read<ContactsCubit>().loadContacts();
+          // Use the cubit to add contact (handles state management)
+          await context.read<ContactsCubit>().addContact(newContact);
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Interlocuteur créé avec succès')),

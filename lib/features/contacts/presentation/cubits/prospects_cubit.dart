@@ -41,30 +41,85 @@ class ProspectsCubit extends Cubit<ProspectsState> {
     }
   }
 
+  Future<void> addProspect(Prospect prospect) async {
+    try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ProspectsLoaded) {
+        // Add prospect to current list
+        final updatedProspects = [...currentState.prospects, prospect];
+        // Emit the updated state immediately
+        emit(ProspectsLoaded(updatedProspects));
+      }
+      // Then persist to database
+      await prospectRepository.addProspect(prospect);
+    } catch (e) {
+      emit(ProspectsError('Failed to add prospect: ${e.toString()}'));
+      // Reload to revert on error
+      await loadProspects();
+    }
+  }
+
   Future<void> updateProspect(Prospect prospect) async {
     try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ProspectsLoaded) {
+        // Update prospect in current list
+        final updatedProspects = currentState.prospects.map((p) {
+          return p.id == prospect.id ? prospect : p;
+        }).toList();
+        // Emit the updated state immediately
+        emit(ProspectsLoaded(updatedProspects));
+      }
+      // Then persist to database
       await prospectRepository.updateProspect(prospect);
-      await loadProspects(); // Reload prospects after update
     } catch (e) {
       emit(ProspectsError('Failed to update prospect: ${e.toString()}'));
+      // Reload to revert on error
+      await loadProspects();
     }
   }
 
   Future<void> deleteProspect(String id) async {
     try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ProspectsLoaded) {
+        // Remove prospect from current list
+        final updatedProspects = currentState.prospects
+            .where((prospect) => prospect.id != id)
+            .toList();
+        // Emit the updated state immediately
+        emit(ProspectsLoaded(updatedProspects));
+      }
+      // Then persist to database
       await prospectRepository.deleteProspect(id);
-      await loadProspects(); // Reload prospects after delete
     } catch (e) {
       emit(ProspectsError('Failed to delete prospect: ${e.toString()}'));
+      // Reload to revert on error
+      await loadProspects();
     }
   }
 
   Future<void> convertProspectToClient(String id) async {
     try {
+      // Get current state
+      final currentState = state;
+      if (currentState is ProspectsLoaded) {
+        // Remove prospect from current list
+        final updatedProspects = currentState.prospects
+            .where((prospect) => prospect.id != id)
+            .toList();
+        // Emit the updated state immediately
+        emit(ProspectsLoaded(updatedProspects));
+      }
+      // Then persist to database
       await prospectRepository.deleteProspect(id);
-      await loadProspects(); // Reload prospects after conversion
     } catch (e) {
       emit(ProspectsError('Failed to convert prospect: ${e.toString()}'));
+      // Reload to revert on error
+      await loadProspects();
     }
   }
 }
