@@ -102,6 +102,7 @@ class _EditProspectFormState extends State<EditProspectForm> {
           status: widget.initialProspect.status,
         ),
       );
+      debugPrint('[EditProspectForm] Save completed for ${widget.initialProspect.id}');
       setState(() {
         _isSubmitting = false;
       });

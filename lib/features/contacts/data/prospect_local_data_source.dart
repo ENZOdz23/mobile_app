@@ -38,11 +38,14 @@ class ProspectsLocalDataSource {
 
   Future<void> updateProspect(Prospect prospect) async {
     try {
+      print('[ProspectsLocalDataSource] Updating prospect: ${prospect.id} - ${prospect.entreprise}');
       final result = await _dbHelper.update(_tableName, prospect.toMap(), prospect.id);
+      print('[ProspectsLocalDataSource] Update result: $result');
       if (result == 0) {
         throw Exception('Prospect not found');
       }
     } catch (e) {
+      print('[ProspectsLocalDataSource] Error updating prospect: $e');
       throw Exception('Failed to update prospect: $e');
     }
   }
