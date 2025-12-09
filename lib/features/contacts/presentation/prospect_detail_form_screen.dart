@@ -183,18 +183,34 @@ class ProspectDetailFormScreen extends StatelessWidget {
   }
 
   void _showCreateInterlocuteurForm(BuildContext context, Prospect prospect) {
+    // Capture the cubit before showing the modal to avoid context issues
+    final contactsCubit = context.read<ContactsCubit>();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => CreateInterlocuteurForm(
+      builder: (modalContext) => CreateInterlocuteurForm(
         prospectCompany: prospect.entreprise,
         onSave: (newContact) async {
-          // Use the cubit to add contact (handles state management)
-          await context.read<ContactsCubit>().addContact(newContact);
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Interlocuteur créé avec succès')),
-          );
+          try {
+            // Use the captured cubit to add contact
+            await contactsCubit.addContact(newContact);
+            if (modalContext.mounted) {
+              Navigator.of(modalContext).pop();
+              ScaffoldMessenger.of(modalContext).showSnackBar(
+                SnackBar(content: Text('Interlocuteur créé avec succès')),
+              );
+            }
+          } catch (e) {
+            if (modalContext.mounted) {
+              ScaffoldMessenger.of(modalContext).showSnackBar(
+                SnackBar(
+                  content: Text('Erreur: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
         },
       ),
     );
