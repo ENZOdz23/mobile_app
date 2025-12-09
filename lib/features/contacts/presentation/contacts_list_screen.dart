@@ -168,7 +168,7 @@ class _ContactsListScreenContent extends StatelessWidget {
         if (state is ContactsLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is ContactsError) {
-          return Center(child: Text('Erreur de chargement'));
+          return Center(child: Text(state.message));
         } else if (state is ContactsLoaded) {
           final contacts = state.contacts;
 
@@ -225,7 +225,7 @@ class _ContactsListScreenContent extends StatelessWidget {
         if (state is ProspectsLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is ProspectsError) {
-          return Center(child: Text('Erreur de chargement'));
+          return Center(child: Text(state.message));
         } else if (state is ProspectsLoaded) {
           final prospects = state.prospects;
 

@@ -21,8 +21,9 @@ class DBHelper {
     String path = join(await getDatabasesPath(), 'app_database.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -58,6 +59,14 @@ class DBHelper {
         status TEXT NOT NULL
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('DROP TABLE IF EXISTS contacts');
+      await db.execute('DROP TABLE IF EXISTS prospects');
+      await _onCreate(db, newVersion);
+    }
   }
 
   // Generic CRUD operations
