@@ -69,7 +69,7 @@ class ContactFormScreen extends StatelessWidget {
     );
     if (confirm == true) {
       onDelete(contact.id);
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop(); // Removed to prevent double pop (handled by BlocListener)
     }
   }
 

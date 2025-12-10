@@ -46,10 +46,17 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
         type: ContactType.prospect,
       );
 
-      await widget.onSave(newContact);
-      setState(() {
-        _isSubmitting = false;
-      });
+      try {
+        await widget.onSave(newContact);
+      } catch (e) {
+        debugPrint('[CreateInterlocuteurForm] Error saving contact: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
+        }
+      }
     }
   }
 
@@ -64,7 +71,9 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
       ),
       child: Form(
         key: _formKey,
-        child: Wrap(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Nouvel Interlocuteur',
@@ -113,7 +122,18 @@ class _CreateInterlocuteurFormState extends State<CreateInterlocuteurForm> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: Text('Créer'),
+                child: _isSubmitting
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : Text('Créer'),
               ),
             ),
             SizedBox(height: 24),
