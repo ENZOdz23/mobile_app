@@ -1,8 +1,8 @@
-// lib/features/contacts/data/prospect_repository_impl.dart
+// lib/features/prospects/data/repositories/prospect_repository_impl.dart
 
-import '../domain/prospect_repository.dart';
-import '../models/prospect.dart';
-import 'datasources/prospects_remote_data_source.dart';
+import '../datasources/prospects_remote_data_source.dart';
+import '../../../contacts/models/prospect.dart';
+import '../../domain/repositories/prospect_repository.dart';
 
 class ProspectRepositoryImpl implements ProspectRepository {
   final IProspectsRemoteDataSource remoteDataSource;

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/get_contacts_use_case.dart';
-import '../data/contacts_local_data_source.dart';
+import '../data/datasources/contacts_remote_data_source.dart';
 import '../data/contacts_repository_impl.dart';
 import '../../../shared/components/base_scaffold.dart';
-import '../../../core/config/routes.dart';
 import 'contact_form_screen.dart';
 import 'widgets/contact_item.dart';
 import 'widgets/prospect_item.dart';
 import 'prospect_detail_form_screen.dart';
 import '../domain/get_prospects_use_case.dart';
-import '../data/prospect_local_data_source.dart';
+import '../data/datasources/prospects_remote_data_source.dart';
 import '../data/prospect_repository_impl.dart';
 import 'cubits/contacts_cubit.dart';
 import 'cubits/prospects_cubit.dart';
@@ -21,10 +20,10 @@ class ContactsListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Initialize repositories and use cases
     final contactRepository = ContactsRepositoryImpl(
-      localDataSource: ContactsLocalDataSource(),
+      remoteDataSource: ContactsRemoteDataSource(),
     );
     final prospectRepository = ProspectRepositoryImpl(
-      localDataSource: ProspectsLocalDataSource(),
+      remoteDataSource: ProspectsRemoteDataSource(),
     );
     final getContactsUseCase = GetContactsUseCase(contactRepository);
     final getProspectsUseCase = GetProspectsUseCase(prospectRepository);
@@ -199,7 +198,9 @@ class _ContactsListScreenContent extends StatelessWidget {
                         value: context.read<ContactsCubit>(),
                         child: ContactFormScreen(
                           contactId: contact.id, // Changed: pass ID
-                          onEdit: (updated) => context.read<ContactsCubit>().updateContact(updated),
+                          onEdit: (updated) => context
+                              .read<ContactsCubit>()
+                              .updateContact(updated),
                           onDelete: (id) {
                             context.read<ContactsCubit>().deleteContact(id);
                           },
@@ -263,7 +264,9 @@ class _ContactsListScreenContent extends StatelessWidget {
                         ],
                         child: ProspectDetailFormScreen(
                           prospectId: prospect.id, // Changed: pass ID
-                          onEdit: (updated) => context.read<ProspectsCubit>().updateProspect(updated),
+                          onEdit: (updated) => context
+                              .read<ProspectsCubit>()
+                              .updateProspect(updated),
                           onDelete: (id) {
                             context.read<ProspectsCubit>().deleteProspect(id);
                           },
@@ -271,7 +274,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                             await context
                                 .read<ProspectsCubit>()
                                 .convertProspectToClient(prospect.id);
-                             // Navigator.of(context).pop(); // Removed to prevent double pop
+                            // Navigator.of(context).pop(); // Removed to prevent double pop
                           },
                         ),
                       ),
@@ -288,7 +291,7 @@ class _ContactsListScreenContent extends StatelessWidget {
       },
     );
   }
-  
+
   void _loadData(BuildContext context) {
     context.read<ContactsCubit>().loadContacts();
     context.read<ProspectsCubit>().loadProspects();

@@ -5,12 +5,15 @@ class Api {
     BaseOptions(
       baseUrl:
           //192.168.43.26:8000
-          "http://192.168.43.26:8000/api", // change this based on the server
+          "http://localhost:8000/api", // change this based on the server
       headers: {"Content-Type": "application/json"},
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
     ),
   );
+
+  /// Get the Dio instance for use in data sources
+  static Dio getDio() => _dio;
 
   ///AUTH HEADERS
 
