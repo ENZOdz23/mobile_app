@@ -1,34 +1,19 @@
 // lib/features/authentication/data/login_repository_impl.dart
-import 'package:dio/dio.dart';
-
+import 'datasources/auth_remote_data_source.dart';
 import '../domain/login_repository.dart';
-import '../../../core/api/api_client.dart';
 
 class LoginRepositoryImpl implements LoginRepository {
+  final IAuthRemoteDataSource remoteDataSource;
+
+  LoginRepositoryImpl({IAuthRemoteDataSource? remoteDataSource})
+    : remoteDataSource = remoteDataSource ?? AuthRemoteDataSource();
+
   @override
   Future<void> requestOtp(String phoneNumber) async {
     try {
-      final resp = await Api.sendOtp(phoneNumber);
-      final status = resp.statusCode ?? 0;
-      if (status < 200 || status >= 300) {
-        // Include full response body when available to aid debugging
-        final body = resp.data != null ? resp.data.toString() : null;
-        final msg = (resp.data is Map && resp.data['message'] != null)
-            ? resp.data['message'].toString()
-            : (body ?? 'Failed to request OTP (status $status)');
-        throw Exception(msg);
-      }
-    } on DioError catch (err) {
-      // Prefer server-provided message when available; otherwise include full body
-      final respData = err.response?.data;
-      final serverMsg = (respData is Map && respData['message'] != null)
-          ? respData['message']?.toString()
-          : (respData != null ? respData.toString() : null);
-      throw Exception(
-        serverMsg ?? err.message ?? 'Network error while requesting OTP',
-      );
+      await remoteDataSource.requestOtp(phoneNumber);
     } catch (e) {
-      rethrow;
+      throw Exception('Repository: Failed to request OTP - $e');
     }
   }
 }

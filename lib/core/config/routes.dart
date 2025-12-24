@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../features/authentication/presentation/login_screen.dart';
 import '../../features/authentication/presentation/otp_screen.dart';
+import '../../features/authentication/presentation/screens/auth_test_screen.dart';
 import '../../features/offres/presentation/home_screen.dart';
 import '../../features/entreprise_state/entreprise_state.dart';
 import '../../features/contacts/presentation/contacts_list_screen.dart';
@@ -34,6 +35,7 @@ import '../../features/home/presentation/screens/plan_meeting_screen.dart';
 class AppRoutes {
   static const String login = '/';
   static const String otp = '/otp';
+  static const String authTest = '/auth-test';
   static const String dashboard = '/dashboard';
   static const String offres = '/offres';
   static const String changeEntrepriseState = '/change-entreprise-state';
@@ -64,6 +66,9 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => OtpScreen(phoneNumber: phoneNumber),
         );
+
+      case authTest:
+        return MaterialPageRoute(builder: (_) => const AuthTestScreen());
 
       case dashboard:
         return MaterialPageRoute(
