@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../features/authentication/presentation/login_screen.dart';
 import '../../features/authentication/presentation/otp_screen.dart';
+import '../../features/authentication/presentation/screens/auth_test_screen.dart';
 import '../../features/offres/presentation/home_screen.dart';
 import '../../features/entreprise_state/entreprise_state.dart';
 import '../../features/contacts/presentation/contacts_list_screen.dart';
@@ -20,21 +21,21 @@ import '../../features/contacts/presentation/widgets/add_prospect_form.dart';
 import '../../features/contacts/presentation/cubits/add_contact_cubit.dart';
 import '../../features/contacts/presentation/cubits/add_prospect_cubit.dart';
 import '../../features/contacts/data/contacts_repository_impl.dart';
-import '../../features/contacts/data/contacts_local_data_source.dart';
+import '../../features/contacts/data/datasources/contacts_remote_data_source.dart';
 import '../../features/contacts/data/prospect_repository_impl.dart';
-import '../../features/contacts/data/prospect_local_data_source.dart';
+import '../../features/contacts/data/datasources/prospects_remote_data_source.dart';
 import '../../features/contacts/domain/add_contact_use_case.dart';
 import '../../features/contacts/domain/add_prospect_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/home/presentation/screens/kpis_screen.dart';
 import '../../features/home/presentation/screens/goals_screen.dart';
 import '../../features/home/presentation/screens/recent_activities_screen.dart';
-import '../../features/home/presentation/screens/add_prospect_screen.dart';
 import '../../features/home/presentation/screens/plan_meeting_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
   static const String otp = '/otp';
+  static const String authTest = '/auth-test';
   static const String dashboard = '/dashboard';
   static const String offres = '/offres';
   static const String changeEntrepriseState = '/change-entreprise-state';
@@ -65,6 +66,9 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => OtpScreen(phoneNumber: phoneNumber),
         );
+
+      case authTest:
+        return MaterialPageRoute(builder: (_) => const AuthTestScreen());
 
       case dashboard:
         return MaterialPageRoute(
@@ -131,7 +135,9 @@ class AppRoutes {
           builder: (_) => BlocProvider(
             create: (context) => AddContactCubit(
               AddContactUseCase(
-                ContactsRepositoryImpl(localDataSource: ContactsLocalDataSource()),
+                ContactsRepositoryImpl(
+                  remoteDataSource: ContactsRemoteDataSource(),
+                ),
               ),
             ),
             child: Scaffold(
@@ -150,7 +156,9 @@ class AppRoutes {
           builder: (_) => BlocProvider(
             create: (context) => AddProspectCubit(
               AddProspectUseCase(
-                ProspectRepositoryImpl(localDataSource: ProspectsLocalDataSource()),
+                ProspectRepositoryImpl(
+                  remoteDataSource: ProspectsRemoteDataSource(),
+                ),
               ),
             ),
             child: Scaffold(
@@ -173,9 +181,6 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => const RecentActivitiesScreen(),
         );
-
-      case addProspect:
-        return MaterialPageRoute(builder: (_) => const AddProspectScreen());
 
       case planMeeting:
         return MaterialPageRoute(builder: (_) => const PlanMeetingScreen());

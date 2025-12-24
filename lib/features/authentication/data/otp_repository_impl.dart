@@ -1,48 +1,29 @@
 // lib/features/authentication/data/otp_repository_impl.dart
-import 'package:flutter/foundation.dart';
-
+import 'datasources/auth_remote_data_source.dart';
 import '../domain/otp_repository.dart';
 import '../models/otp.dart';
-import '../../../core/api/api_client.dart';
 
 class OtpRepositoryImpl implements OtpRepository {
+  final IAuthRemoteDataSource remoteDataSource;
+
+  OtpRepositoryImpl({IAuthRemoteDataSource? remoteDataSource})
+    : remoteDataSource = remoteDataSource ?? AuthRemoteDataSource();
+
   @override
   Future<bool> verifyOtp(Otp otp) async {
-    // TODO: Remove this bypass when server is up
-    return true; 
-    /*
     try {
-      debugPrint(
-        'otp_repository_impl: verifying otp for phone=${otp.phoneNumber}, code=${otp.code}',
-      );
-      final resp = await Api.verifyOtp(otp.code);
-      final status = resp.statusCode ?? 0;
-      debugPrint(
-        'otp_repository_impl: verifyOtp response status=$status body=${resp.data}',
-      );
-      return status >= 200 && status < 300;
-    } catch (_) {
-      return false;
+      return await remoteDataSource.verifyOtp(otp.phoneNumber, otp.code);
+    } catch (e) {
+      throw Exception('Repository: Failed to verify OTP - $e');
     }
-    */
   }
 
   @override
   Future<void> resendOtp(String phoneNumber) async {
     try {
-      debugPrint('otp_repository_impl: resendOtp for phone=$phoneNumber');
-      final resp = await Api.resendOtp(phoneNumber);
-      final status = resp.statusCode ?? 0;
-      debugPrint(
-        'otp_repository_impl: resendOtp response status=$status body=${resp.data}',
-      );
-      if (status < 200 || status >= 300) {
-        final body = resp.data != null ? resp.data.toString() : null;
-        throw Exception(body ?? 'Failed to resend OTP (status $status)');
-      }
+      await remoteDataSource.resendOtp(phoneNumber);
     } catch (e) {
-      debugPrint('otp_repository_impl: resendOtp error: $e');
-      rethrow;
+      throw Exception('Repository: Failed to resend OTP - $e');
     }
   }
 }
