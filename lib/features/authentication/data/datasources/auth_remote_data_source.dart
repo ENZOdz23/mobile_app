@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/api/api_client.dart';
 
 abstract class IAuthRemoteDataSource {
+  Future<bool> checkPhoneNumberExists(String phoneNumber);
   Future<void> requestOtp(String phoneNumber);
   Future<bool> verifyOtp(String phoneNumber, String otpCode);
   Future<void> resendOtp(String phoneNumber);
@@ -15,12 +16,36 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
   AuthRemoteDataSource({Dio? dio}) : _dio = dio ?? Api.getDio();
 
   @override
+  Future<bool> checkPhoneNumberExists(String phoneNumber) async {
+    try {
+      // Check if phone number exists in the database
+      final response = await _dio.get(
+        '/phone-numbers/',
+        queryParameters: {'phone_number': phoneNumber},
+      );
+
+      // If status is 200/201, phone number exists
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+
+      // 404 means phone number doesn't exist
+      if (statusCode == 404) {
+        return false;
+      }
+
+      // Re-throw other errors (400, 500, network errors, etc.)
+      final errorMsg = e.response?.data?['error'] ?? e.message;
+      throw Exception('Failed to check phone number: $errorMsg');
+    } catch (e) {
+      throw Exception('Failed to check phone number: $e');
+    }
+  }
+
+  @override
   Future<void> requestOtp(String phoneNumber) async {
     try {
-      // First, ensure phone number exists in the database
-      await _dio.post('/phone-numbers/', data: {'phone_number': phoneNumber});
-
-      // Then, generate OTP using the /otps/generate/ endpoint
+      // Generate OTP
       final response = await _dio.post(
         '/otps/generate/',
         data: {'phone_number': phoneNumber},
@@ -31,9 +56,9 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       }
     } on DioException catch (e) {
       final errorMsg = e.response?.data?['error'] ?? e.message;
-      throw Exception('Remote: Failed to request OTP - $errorMsg');
+      throw Exception('Failed to request OTP: $errorMsg');
     } catch (e) {
-      throw Exception('Remote: Failed to request OTP - $e');
+      throw Exception('Failed to request OTP: $e');
     }
   }
 

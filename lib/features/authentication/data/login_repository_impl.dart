@@ -9,11 +9,20 @@ class LoginRepositoryImpl implements LoginRepository {
     : remoteDataSource = remoteDataSource ?? AuthRemoteDataSource();
 
   @override
+  Future<bool> checkPhoneNumberExists(String phoneNumber) async {
+    try {
+      return await remoteDataSource.checkPhoneNumberExists(phoneNumber);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> requestOtp(String phoneNumber) async {
     try {
       await remoteDataSource.requestOtp(phoneNumber);
     } catch (e) {
-      throw Exception('Repository: Failed to request OTP - $e');
+      rethrow;
     }
   }
 }
