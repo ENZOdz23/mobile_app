@@ -1,90 +1,102 @@
+// lib/features/home/presentation/screens/recent_activities_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../shared/components/base_scaffold.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../cubit/activities_cubit.dart';
+import '../widgets/activity_item.dart';
+import '../widgets/dashboard_error_widget.dart';
+import '../widgets/dashboard_loading_shimmer.dart';
 
 class RecentActivitiesScreen extends StatelessWidget {
   const RecentActivitiesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      title: 'Activités récentes',
-      showBottomNav: false,
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return _buildActivityItem(index);
-        },
-      ),
-    );
-  }
+    return BlocProvider(
+      create: (context) => ActivitiesCubit()..loadActivities(),
+      child: BaseScaffold(
+        title: 'Activités récentes',
+        showBottomNav: false,
+        body: BlocBuilder<ActivitiesCubit, ActivitiesState>(
+          builder: (context, state) {
+            if (state is ActivitiesLoading) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
 
-  Widget _buildActivityItem(int index) {
-    final activities = [
-      {
-        'title': 'Contrat signé',
-        'subtitle': 'Entreprise ABC',
-        'icon': Icons.check_circle,
-        'color': AppColors.primary,
-      },
-      {
-        'title': 'RDV Client',
-        'subtitle': 'Client XYZ',
-        'icon': Icons.event,
-        'color': Colors.blue,
-      },
-      {
-        'title': 'Appel sortant',
-        'subtitle': 'Société DEF',
-        'icon': Icons.phone,
-        'color': Colors.orange,
-      },
-      {
-        'title': 'Email envoyé',
-        'subtitle': 'Proposition GHI',
-        'icon': Icons.email,
-        'color': Colors.purple,
-      },
-    ];
+            if (state is ActivitiesError) {
+              return DashboardErrorWidget(
+                message: state.message,
+                onRetry: () {
+                  context.read<ActivitiesCubit>().loadActivities();
+                },
+              );
+            }
 
-    final activity = activities[index % activities.length];
+            if (state is ActivitiesLoaded) {
+              if (state.activities.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 64,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Aucune activité récente',
+                          style: AppTextStyles.headlineMedium.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Les activités apparaîtront ici lorsqu\'elles seront disponibles',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: (activity['color'] as Color).withOpacity(0.1),
-          child: Icon(
-            activity['icon'] as IconData,
-            color: activity['color'] as Color,
-          ),
-        ),
-        title: Text(
-          activity['title'] as String,
-          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          activity['subtitle'] as String,
-          style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
-        ),
-        trailing: Text(
-          'Il y a ${index + 1}h',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<ActivitiesCubit>().refreshActivities();
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.activities.length,
+                  itemBuilder: (context, index) {
+                    return ActivityItem(activity: state.activities[index]);
+                  },
+                ),
+              );
+            }
+
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
         ),
       ),
     );

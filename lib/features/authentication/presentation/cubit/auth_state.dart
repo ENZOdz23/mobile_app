@@ -23,3 +23,5 @@ class OtpVerificationSuccess extends AuthState {
 
   OtpVerificationSuccess(this.success);
 }
+
+class AuthAuthenticated extends AuthState {}

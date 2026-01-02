@@ -4,10 +4,14 @@ import 'core/utils/utils.dart';
 import 'package:flutter/services.dart';
 import 'core/themes/app_theme.dart';
 import 'core/config/routes.dart';
+import 'core/api/api_client.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize API client
+  await Api.initialize();
 
   // Set preferred orientations (portrait only for mobile app)
   await SystemChrome.setPreferredOrientations([
@@ -37,6 +41,7 @@ class ProspectraApp extends StatelessWidget {
       // App configuration
       title: 'Prospectra - Mobilis',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
 
       // Theme configuration
       theme: lightTheme,

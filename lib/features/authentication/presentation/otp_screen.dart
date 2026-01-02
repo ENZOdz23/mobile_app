@@ -2,11 +2,17 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/config/routes.dart';
 import '../models/otp.dart';
 import '../domain/verify_otp_usecase.dart';
 import '../domain/resend_otp_usecase.dart';
+import '../domain/request_otp_usecase.dart';
 import '../data/otp_repository_impl.dart';
+import '../data/datasources/auth_remote_data_source.dart';
+import '../presentation/cubit/auth_cubit.dart';
+import '../presentation/cubit/auth_state.dart';
 
 // Reusable widgetss
 import 'widgets/opt/otp_field.dart';
@@ -38,10 +44,6 @@ class _OtpScreenState extends State<OtpScreen> {
   int _attempts = 0;
   final int _maxAttempts = 3;
 
-  // Use cases
-  late final VerifyOtpUseCase _verifyOtpUseCase;
-  late final ResendOtpUseCase _resendOtpUseCase;
-
   @override
   void initState() {
     super.initState();
@@ -49,11 +51,6 @@ class _OtpScreenState extends State<OtpScreen> {
     // Initialize controllers and focus nodes
     _controllers = List.generate(_otpLength, (_) => TextEditingController());
     _focusNodes = List.generate(_otpLength, (_) => FocusNode());
-
-    // Initialize repository and use cases
-    final repository = OtpRepositoryImpl();
-    _verifyOtpUseCase = VerifyOtpUseCase(repository);
-    _resendOtpUseCase = ResendOtpUseCase(repository);
 
     _startResendTimer();
   }
@@ -113,36 +110,8 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    try {
-      final otp = Otp(code: otpCode, phoneNumber: widget.phoneNumber);
-      final isValid = await _verifyOtpUseCase(otp);
-
-      if (isValid) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
-      } else {
-        _attempts++;
-        if (_attempts >= _maxAttempts) {
-          setState(() {
-            _errorMessage = 'Compte temporairement bloqué pendant 1 heure.';
-          });
-        } else {
-          setState(() {
-            _errorMessage =
-                'Code incorrect ou expiré. Veuillez ressayer. '
-                '(${_maxAttempts - _attempts} tentatives restantes)';
-          });
-          _clearOtp();
-        }
-      }
-    } catch (_) {
-      setState(() {
-        _errorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    // Use AuthCubit to verify OTP (it will handle token storage)
+    context.read<AuthCubit>().verifyOtp(widget.phoneNumber, otpCode);
   }
 
   // ------------------------ RESEND OTP ------------------------
@@ -155,27 +124,8 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    try {
-      await _resendOtpUseCase(widget.phoneNumber);
-
-      _clearOtp();
-      _startResendTimer();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Un nouveau code a été envoyé."),
-            backgroundColor: AppColors.accent,
-          ),
-        );
-      }
-    } catch (_) {
-      setState(() {
-        _errorMessage = "Impossible de renvoyer le code. Veuillez réessayer.";
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    // Use AuthCubit to resend OTP
+    context.read<AuthCubit>().resendOtp(widget.phoneNumber);
   }
 
   // ------------------------ BUILD OTP FIELD ------------------------
@@ -210,20 +160,60 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(
-          color: Theme.of(context).colorScheme.onSurface,
-          onPressed: () {
-            _timer?.cancel();
-            Navigator.pop(context);
-          },
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is OtpVerificationSuccess) {
+          // Navigate to dashboard on successful verification
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+          }
+        } else if (state is AuthError) {
+          setState(() {
+            _isLoading = false;
+            _attempts++;
+            if (_attempts >= _maxAttempts) {
+              _errorMessage = 'Compte temporairement bloqué pendant 1 heure.';
+            } else {
+              _errorMessage = state.message;
+              _clearOtp();
+            }
+          });
+        } else if (state is AuthLoading) {
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+        } else if (state is AuthSuccess) {
+          // Handle resend OTP success
+          if (mounted) {
+            _clearOtp();
+            _startResendTimer();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Un nouveau code a été envoyé."),
+                backgroundColor: AppColors.accent,
+              ),
+            );
+          }
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: BackButton(
+            color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () {
+              _timer?.cancel();
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: Center(
+        body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -273,6 +263,7 @@ class _OtpScreenState extends State<OtpScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

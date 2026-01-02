@@ -2,6 +2,7 @@
 import 'datasources/auth_remote_data_source.dart';
 import '../domain/otp_repository.dart';
 import '../models/otp.dart';
+import '../models/auth_response.dart';
 
 class OtpRepositoryImpl implements OtpRepository {
   final IAuthRemoteDataSource remoteDataSource;
@@ -10,7 +11,7 @@ class OtpRepositoryImpl implements OtpRepository {
     : remoteDataSource = remoteDataSource ?? AuthRemoteDataSource();
 
   @override
-  Future<bool> verifyOtp(Otp otp) async {
+  Future<AuthResponse> verifyOtp(Otp otp) async {
     try {
       return await remoteDataSource.verifyOtp(otp.phoneNumber, otp.code);
     } catch (e) {

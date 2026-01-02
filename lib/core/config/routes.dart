@@ -4,6 +4,13 @@ import 'package:flutter/material.dart';
 import '../../features/authentication/presentation/login_screen.dart';
 import '../../features/authentication/presentation/otp_screen.dart';
 import '../../features/authentication/presentation/screens/auth_test_screen.dart';
+import '../../features/authentication/presentation/cubit/auth_cubit.dart';
+import '../../features/authentication/domain/request_otp_usecase.dart';
+import '../../features/authentication/domain/verify_otp_usecase.dart';
+import '../../features/authentication/domain/resend_otp_usecase.dart';
+import '../../features/authentication/data/otp_repository_impl.dart';
+import '../../features/authentication/data/login_repository_impl.dart';
+import '../../features/authentication/data/datasources/auth_remote_data_source.dart';
 import '../../features/offres/presentation/home_screen.dart';
 import '../../features/entreprise_state/entreprise_state.dart';
 import '../../features/contacts/presentation/contacts_list_screen.dart';
@@ -64,7 +71,26 @@ class AppRoutes {
       case otp:
         final phoneNumber = settings.arguments as String;
         return MaterialPageRoute(
-          builder: (_) => OtpScreen(phoneNumber: phoneNumber),
+          builder: (_) => BlocProvider(
+            create: (context) => AuthCubit(
+              requestOtpUseCase: RequestOtpUseCase(
+                LoginRepositoryImpl(
+                  remoteDataSource: AuthRemoteDataSource(),
+                ),
+              ),
+              verifyOtpUseCase: VerifyOtpUseCase(
+                OtpRepositoryImpl(
+                  remoteDataSource: AuthRemoteDataSource(),
+                ),
+              ),
+              resendOtpUseCase: ResendOtpUseCase(
+                OtpRepositoryImpl(
+                  remoteDataSource: AuthRemoteDataSource(),
+                ),
+              ),
+            ),
+            child: OtpScreen(phoneNumber: phoneNumber),
+          ),
         );
 
       case authTest:

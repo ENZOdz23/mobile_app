@@ -5,6 +5,7 @@ import '../../domain/request_otp_usecase.dart';
 import '../../domain/verify_otp_usecase.dart';
 import '../../domain/resend_otp_usecase.dart';
 import '../../models/otp.dart';
+import '../../../../core/storage/local_storage_service.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -16,7 +17,16 @@ class AuthCubit extends Cubit<AuthState> {
     required this.requestOtpUseCase,
     required this.verifyOtpUseCase,
     required this.resendOtpUseCase,
-  }) : super(AuthInitial());
+  }) : super(AuthInitial()) {
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    final storage = await LocalStorageService.getInstance();
+    if (storage.isLoggedIn() && storage.getAuthToken() != null) {
+      emit(AuthAuthenticated());
+    }
+  }
 
   Future<void> requestOtp(String phoneNumber) async {
     try {
@@ -32,12 +42,18 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       emit(AuthLoading());
       final otp = Otp(code: otpCode, phoneNumber: phoneNumber);
-      final success = await verifyOtpUseCase(otp);
-      if (success) {
-        emit(OtpVerificationSuccess(true));
-      } else {
-        emit(AuthError('OTP verification failed'));
+      final authResponse = await verifyOtpUseCase(otp);
+      
+      // Store token and user info
+      final storage = await LocalStorageService.getInstance();
+      await storage.saveAuthToken(authResponse.token);
+      await storage.saveUserPhone(authResponse.phoneNumber);
+      if (authResponse.userId != null) {
+        await storage.saveUserId(authResponse.userId!);
       }
+      await storage.setLoggedIn(true);
+      
+      emit(OtpVerificationSuccess(true));
     } catch (e) {
       emit(AuthError('Failed to verify OTP: ${e.toString()}'));
     }
@@ -51,5 +67,11 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       emit(AuthError('Failed to resend OTP: ${e.toString()}'));
     }
+  }
+
+  Future<void> logout() async {
+    final storage = await LocalStorageService.getInstance();
+    await storage.clearAllAuthData();
+    emit(AuthInitial());
   }
 }
