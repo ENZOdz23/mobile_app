@@ -122,63 +122,35 @@ class ProspectDetailFormScreen extends StatelessWidget {
               title: Text('Non abouti'),
               onTap: () => Navigator.pop(context, ProspectStatus.notCompleted),
             ),
-            ListTile(
-              title: Text('Convertir en Client'),
-              onTap: () => Navigator.pop(context, ProspectStatus.client),
-            ),
           ],
         ),
       ),
     );
 
     if (selectedStatus != null) {
-      if (selectedStatus == ProspectStatus.client) {
-        // Convert all interlocuteurs to clients using Cubit
-        final contactsCubit = context.read<ContactsCubit>();
-        for (var contact in interlocuteurs) {
-          final updatedContact = Contact(
-            id: contact.id,
-            name: contact.name,
-            phoneNumber: contact.phoneNumber,
-            email: contact.email,
-            company: contact.company,
-            type: ContactType.client,
-          );
-          await contactsCubit.updateContact(updatedContact);
-        }
+      // Update prospect status
+      final updatedProspect = Prospect(
+        id: prospect.id,
+        entreprise: prospect.entreprise,
+        adresse: prospect.adresse,
+        wilaya: prospect.wilaya,
+        commune: prospect.commune,
+        phoneNumber: prospect.phoneNumber,
+        email: prospect.email,
+        categorie: prospect.categorie,
+        formeLegale: prospect.formeLegale,
+        secteur: prospect.secteur,
+        sousSecteur: prospect.sousSecteur,
+        nif: prospect.nif,
+        registreCommerce: prospect.registreCommerce,
+        status: selectedStatus,
+      );
 
-        // Delete the prospect
-        await context.read<ProspectsCubit>().deleteProspect(prospect.id);
+      await context.read<ProspectsCubit>().updateProspect(updatedProspect);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Prospect converti en client avec succès!')),
-        );
-        Navigator.of(context).pop(); // Go back to list
-      } else {
-        // Update prospect status
-        final updatedProspect = Prospect(
-          id: prospect.id,
-          entreprise: prospect.entreprise,
-          adresse: prospect.adresse,
-          wilaya: prospect.wilaya,
-          commune: prospect.commune,
-          phoneNumber: prospect.phoneNumber,
-          email: prospect.email,
-          categorie: prospect.categorie,
-          formeLegale: prospect.formeLegale,
-          secteur: prospect.secteur,
-          sousSecteur: prospect.sousSecteur,
-          nif: prospect.nif,
-          registreCommerce: prospect.registreCommerce,
-          status: selectedStatus,
-        );
-
-        await context.read<ProspectsCubit>().updateProspect(updatedProspect);
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Statut mis à jour')));
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Statut mis à jour')));
     }
   }
 
