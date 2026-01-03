@@ -26,14 +26,19 @@ class ProspectDetailFormScreen extends StatelessWidget {
   });
 
   void _showEditForm(BuildContext context, Prospect prospect) {
+    // Capture the cubit from the current context correctly
+    final prospectsCubit = context.read<ProspectsCubit>();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => EditProspectForm(
+      builder: (modalContext) => EditProspectForm(
         initialProspect: prospect,
         onSave: (edited) async {
-          await context.read<ProspectsCubit>().updateProspect(edited);
-          Navigator.of(context).pop();
+          await prospectsCubit.updateProspect(edited);
+          if (modalContext.mounted) {
+            Navigator.of(modalContext).pop();
+          }
         },
       ),
     );
