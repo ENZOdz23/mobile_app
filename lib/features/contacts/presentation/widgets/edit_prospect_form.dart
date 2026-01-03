@@ -1,6 +1,6 @@
 // lib/features/contacts/presentation/widgets/edit_prospect_form.dart
 
-import 'package:crm_sales_performance_mobilis/features/contacts/models/prospect.dart';
+import '../../models/prospect.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
 
@@ -84,28 +84,43 @@ class _EditProspectFormState extends State<EditProspectForm> {
         _isSubmitting = true;
       });
       FocusScope.of(context).unfocus();
-      await widget.onSave(
-        Prospect(
-          id: widget.initialProspect.id,
-          entreprise: _entrepriseController.text.trim(),
-          adresse: _adresseController.text.trim(),
-          wilaya: _wilayaController.text.trim(),
-          commune: _communeController.text.trim(),
-          phoneNumber: widget.initialProspect.phoneNumber,
-          email: widget.initialProspect.email,
-          categorie: _categorieController.text.trim(),
-          formeLegale: _formeLegaleController.text.trim(),
-          secteur: _secteurController.text.trim(),
-          sousSecteur: widget.initialProspect.sousSecteur,
-          nif: _nifController.text.trim(),
-          registreCommerce: _registreCommerceController.text.trim(),
-          status: widget.initialProspect.status,
-        ),
-      );
-      debugPrint('[EditProspectForm] Save completed for ${widget.initialProspect.id}');
-      setState(() {
-        _isSubmitting = false;
-      });
+
+      try {
+        await widget.onSave(
+          Prospect(
+            id: widget.initialProspect.id,
+            entreprise: _entrepriseController.text.trim(),
+            adresse: _adresseController.text.trim(),
+            wilaya: _wilayaController.text.trim(),
+            commune: _communeController.text.trim(),
+            phoneNumber: widget.initialProspect.phoneNumber,
+            email: widget.initialProspect.email,
+            categorie: _categorieController.text.trim(),
+            formeLegale: _formeLegaleController.text.trim(),
+            secteur: _secteurController.text.trim(),
+            sousSecteur: widget.initialProspect.sousSecteur,
+            nif: _nifController.text.trim(),
+            registreCommerce: _registreCommerceController.text.trim(),
+            status: widget.initialProspect.status,
+          ),
+        );
+        debugPrint(
+          '[EditProspectForm] Save completed for ${widget.initialProspect.id}',
+        );
+      } catch (e) {
+        debugPrint('[EditProspectForm] Error saving: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
+        }
+      }
     }
   }
 

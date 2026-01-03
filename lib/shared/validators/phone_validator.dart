@@ -1,17 +1,17 @@
 // lib/shared/validators/phone_validator.dart
 
 class PhoneValidator {
-  /// Validates Mobilis phone number format (example: Algerian mobile numbers).
-  /// Replace with specific regex based on Mobilis number format if needed.
+  /// Validates Mobilis phone number format (must start with 06).
+  /// Only accepts numbers starting with 06 followed by 8 digits.
   static String? validatePhoneNumber(String? phone) {
     if (phone == null || phone.trim().isEmpty) {
       return 'Phone number is required';
     }
-    // Mobile numbers in Algeria typically start with +213 or 0 followed by 9 digits
-    // Example pattern: optional +213 country code or 0, then 9 digits
-    final phoneRegExp = RegExp(r'^(\+213|0)(5|6|7)\d{8}$');
+
+    // Only accept numbers starting with 06 (8 digits after 06 = 10 total digits)
+    final phoneRegExp = RegExp(r'^06\d{8}$');
     if (!phoneRegExp.hasMatch(phone)) {
-      return 'Invalid Mobilis phone number format';
+      return 'Phone number must start with 06 and contain 10 digits';
     }
     return null;
   }

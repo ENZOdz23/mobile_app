@@ -18,28 +18,27 @@ import '../../contacts/presentation/widgets/section_header.dart';
 import '../../contacts/presentation/widgets/contact_utils.dart';
 
 class ProspectDetailFormScreen extends StatelessWidget {
-  final String prospectId; // Changed: accept ID instead of object
-  final Future<void> Function(Prospect) onEdit;
-  final Function(String) onDelete;
-  final VoidCallback onConvertToClient;
+  final String prospectId;
 
   const ProspectDetailFormScreen({
     super.key,
-    required this.prospectId, // Changed
-    required this.onEdit,
-    required this.onDelete,
-    required this.onConvertToClient,
+    required this.prospectId,
   });
 
   void _showEditForm(BuildContext context, Prospect prospect) {
+    // Capture the cubit from the current context correctly
+    final prospectsCubit = context.read<ProspectsCubit>();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => EditProspectForm(
+      builder: (modalContext) => EditProspectForm(
         initialProspect: prospect,
         onSave: (edited) async {
-          await onEdit(edited);
-          Navigator.of(context).pop();
+          await prospectsCubit.updateProspect(edited);
+          if (modalContext.mounted) {
+            Navigator.of(modalContext).pop();
+          }
         },
       ),
     );
@@ -65,8 +64,8 @@ class ProspectDetailFormScreen extends StatelessWidget {
     );
 
     if (confirm == true) {
-      onDelete(prospect.id);
-      // Navigator.of(context).pop(); // Removed to prevent double pop (handled by BlocListener)
+      await context.read<ProspectsCubit>().deleteProspect(prospect.id);
+      Navigator.of(context).pop();
     }
   }
 
@@ -123,62 +122,35 @@ class ProspectDetailFormScreen extends StatelessWidget {
               title: Text('Non abouti'),
               onTap: () => Navigator.pop(context, ProspectStatus.notCompleted),
             ),
-            ListTile(
-              title: Text('Convertir en Client'),
-              onTap: () => Navigator.pop(context, ProspectStatus.client),
-            ),
           ],
         ),
       ),
     );
 
     if (selectedStatus != null) {
-      if (selectedStatus == ProspectStatus.client) {
-        // Convert all interlocuteurs to clients using Cubit
-        final contactsCubit = context.read<ContactsCubit>();
-        for (var contact in interlocuteurs) {
-          final updatedContact = Contact(
-            id: contact.id,
-            name: contact.name,
-            phoneNumber: contact.phoneNumber,
-            email: contact.email,
-            company: contact.company,
-            type: ContactType.client,
-          );
-          await contactsCubit.updateContact(updatedContact);
-        }
+      // Update prospect status
+      final updatedProspect = Prospect(
+        id: prospect.id,
+        entreprise: prospect.entreprise,
+        adresse: prospect.adresse,
+        wilaya: prospect.wilaya,
+        commune: prospect.commune,
+        phoneNumber: prospect.phoneNumber,
+        email: prospect.email,
+        categorie: prospect.categorie,
+        formeLegale: prospect.formeLegale,
+        secteur: prospect.secteur,
+        sousSecteur: prospect.sousSecteur,
+        nif: prospect.nif,
+        registreCommerce: prospect.registreCommerce,
+        status: selectedStatus,
+      );
 
-        // Delete the prospect
-        onConvertToClient();
+      await context.read<ProspectsCubit>().updateProspect(updatedProspect);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Prospect converti en client avec succès!')),
-        );
-      } else {
-        // Update prospect status
-        final updatedProspect = Prospect(
-          id: prospect.id,
-          entreprise: prospect.entreprise,
-          adresse: prospect.adresse,
-          wilaya: prospect.wilaya,
-          commune: prospect.commune,
-          phoneNumber: prospect.phoneNumber,
-          email: prospect.email,
-          categorie: prospect.categorie,
-          formeLegale: prospect.formeLegale,
-          secteur: prospect.secteur,
-          sousSecteur: prospect.sousSecteur,
-          nif: prospect.nif,
-          registreCommerce: prospect.registreCommerce,
-          status: selectedStatus,
-        );
-
-        onEdit(updatedProspect);
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Statut mis à jour')));
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Statut mis à jour')));
     }
   }
 

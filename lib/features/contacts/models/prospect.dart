@@ -62,22 +62,27 @@ class Prospect {
   }
 
   // toJson for API requests
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'entreprise': entreprise,
-    'adresse': adresse,
-    'wilaya': wilaya,
-    'commune': commune,
-    'phoneNumber': phoneNumber,
-    'email': email,
-    'categorie': categorie,
-    'formeLegale': formeLegale,
-    'secteur': secteur,
-    'sousSecteur': sousSecteur,
-    'nif': nif,
-    'registreCommerce': registreCommerce,
-    'status': _statusToString(status),
-  };
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{
+      'entreprise': entreprise,
+      'status': _statusToString(status),
+    };
+    
+    // Only include non-empty optional fields
+    if (adresse.isNotEmpty) json['adresse'] = adresse;
+    if (wilaya.isNotEmpty) json['wilaya'] = wilaya;
+    if (commune.isNotEmpty) json['commune'] = commune;
+    if (phoneNumber.isNotEmpty) json['phone_number'] = phoneNumber;
+    if (email.isNotEmpty) json['email'] = email;
+    if (categorie.isNotEmpty) json['categorie'] = categorie;
+    if (formeLegale.isNotEmpty) json['forme_legale'] = formeLegale;
+    if (secteur.isNotEmpty) json['secteur'] = secteur;
+    if (sousSecteur.isNotEmpty) json['sous_secteur'] = sousSecteur;
+    if (nif.isNotEmpty) json['nif'] = nif;
+    if (registreCommerce.isNotEmpty) json['registre_commerce'] = registreCommerce;
+    
+    return json;
+  }
 
   // fromMap for SQLite
   factory Prospect.fromMap(Map<String, dynamic> map) {
