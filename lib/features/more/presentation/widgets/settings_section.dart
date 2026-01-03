@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/config/routes.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../authentication/domain/request_otp_usecase.dart';
+import '../../../authentication/domain/verify_otp_usecase.dart';
+import '../../../authentication/domain/resend_otp_usecase.dart';
+import '../../../authentication/data/otp_repository_impl.dart';
+import '../../../authentication/data/login_repository_impl.dart';
+import '../../../authentication/data/datasources/auth_remote_data_source.dart';
 
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
@@ -75,7 +84,61 @@ class SettingsSection extends StatelessWidget {
             icon: Icons.logout,
             title: 'Déconnexion',
             iconColor: AppColors.error, // Changed
-            onTap: () {},
+            onTap: () => _showLogoutDialog(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop(); // Close dialog
+              
+              // Create AuthCubit and perform logout
+              final authCubit = AuthCubit(
+                requestOtpUseCase: RequestOtpUseCase(
+                  LoginRepositoryImpl(
+                    remoteDataSource: AuthRemoteDataSource(),
+                  ),
+                ),
+                verifyOtpUseCase: VerifyOtpUseCase(
+                  OtpRepositoryImpl(
+                    remoteDataSource: AuthRemoteDataSource(),
+                  ),
+                ),
+                resendOtpUseCase: ResendOtpUseCase(
+                  OtpRepositoryImpl(
+                    remoteDataSource: AuthRemoteDataSource(),
+                  ),
+                ),
+              );
+              
+              await authCubit.logout();
+              
+              // Navigate to login and remove all previous routes
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  AppRoutes.login,
+                  (route) => false,
+                );
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: const Text('Déconnexion'),
           ),
         ],
       ),
