@@ -22,8 +22,9 @@ import 'widgets/opt/otp_verify_button.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? otpCode;
 
-  const OtpScreen({super.key, required this.phoneNumber});
+  const OtpScreen({super.key, required this.phoneNumber, this.otpCode});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -53,6 +54,46 @@ class _OtpScreenState extends State<OtpScreen> {
     _focusNodes = List.generate(_otpLength, (_) => FocusNode());
 
     _startResendTimer();
+
+    // Show OTP popup if otpCode is provided
+    if (widget.otpCode != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showOtpPopup(widget.otpCode!);
+      });
+    }
+  }
+
+  void _showOtpPopup(String otpCode) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Code OTP'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Votre code OTP est:'),
+              const SizedBox(height: 16),
+              Text(
+                otpCode,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 4,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -214,56 +255,56 @@ class _OtpScreenState extends State<OtpScreen> {
           ),
         ),
         body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset('assets/images/logo.png', height: 80),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Suivez et optimisez vos ventes grâce à notre plateforme.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 40),
-              OtpPhoneBox(phone: widget.phoneNumber),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(_otpLength, _buildOtpBox),
-              ),
-              if (_errorMessage != null) ...[
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset('assets/images/logo.png', height: 80),
+                ),
                 const SizedBox(height: 16),
-                OtpErrorBox(message: _errorMessage!),
-              ],
-              const SizedBox(height: 32),
-              OtpVerifyButton(
-                loading: _isLoading,
-                disabled: _attempts >= _maxAttempts,
-                onPressed: _verifyOTP,
-              ),
-              const SizedBox(height: 24),
-              TextButton(
-                onPressed: _canResend && !_isLoading ? _resendOTP : null,
-                child: Text(
-                  _canResend
-                      ? "Renvoyer le code"
-                      : "Renvoyer dans $_resendTimer s",
-                  style: TextStyle(
-                    color: _canResend ? AppColors.primary : Colors.grey,
-                    fontWeight: FontWeight.w600,
+                Text(
+                  'Suivez et optimisez vos ventes grâce à notre plateforme.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 40),
+                OtpPhoneBox(phone: widget.phoneNumber),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(_otpLength, _buildOtpBox),
+                ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  OtpErrorBox(message: _errorMessage!),
+                ],
+                const SizedBox(height: 32),
+                OtpVerifyButton(
+                  loading: _isLoading,
+                  disabled: _attempts >= _maxAttempts,
+                  onPressed: _verifyOTP,
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: _canResend && !_isLoading ? _resendOTP : null,
+                  child: Text(
+                    _canResend
+                        ? "Renvoyer le code"
+                        : "Renvoyer dans $_resendTimer s",
+                    style: TextStyle(
+                      color: _canResend ? AppColors.primary : Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

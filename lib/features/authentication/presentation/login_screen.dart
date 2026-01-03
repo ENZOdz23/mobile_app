@@ -79,39 +79,11 @@ class _LoginScreenState extends State<LoginScreen> {
       final otpCode = await _requestOtpUseCase.call(login.phoneNumber);
 
       if (mounted) {
-        // Show OTP in AlertDialog
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext dialogContext) {
-            return AlertDialog(
-              title: const Text('Code OTP'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Votre code OTP est:'),
-                  const SizedBox(height: 16),
-                  Text(
-                    otpCode,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 4,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                    Navigator.pushNamed(context, '/otp', arguments: phone);
-                  },
-                  child: const Text('Continuer'),
-                ),
-              ],
-            );
-          },
+        // Navigate to OTP screen with phone number and OTP code
+        Navigator.pushNamed(
+          context,
+          '/otp',
+          arguments: {'phoneNumber': phone, 'otpCode': otpCode},
         );
       }
     } catch (e) {

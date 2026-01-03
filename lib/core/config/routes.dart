@@ -69,27 +69,23 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       case otp:
-        final phoneNumber = settings.arguments as String;
+        final args = settings.arguments as Map<String, dynamic>;
+        final phoneNumber = args['phoneNumber'] as String;
+        final otpCode = args['otpCode'] as String?;
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
             create: (context) => AuthCubit(
               requestOtpUseCase: RequestOtpUseCase(
-                LoginRepositoryImpl(
-                  remoteDataSource: AuthRemoteDataSource(),
-                ),
+                LoginRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
               ),
               verifyOtpUseCase: VerifyOtpUseCase(
-                OtpRepositoryImpl(
-                  remoteDataSource: AuthRemoteDataSource(),
-                ),
+                OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
               ),
               resendOtpUseCase: ResendOtpUseCase(
-                OtpRepositoryImpl(
-                  remoteDataSource: AuthRemoteDataSource(),
-                ),
+                OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
               ),
             ),
-            child: OtpScreen(phoneNumber: phoneNumber),
+            child: OtpScreen(phoneNumber: phoneNumber, otpCode: otpCode),
           ),
         );
 
