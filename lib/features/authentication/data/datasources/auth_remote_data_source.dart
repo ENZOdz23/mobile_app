@@ -7,7 +7,7 @@ import '../../models/auth_response.dart';
 
 abstract class IAuthRemoteDataSource {
   Future<bool> checkPhoneNumberExists(String phoneNumber);
-  Future<void> requestOtp(String phoneNumber);
+  Future<String> requestOtp(String phoneNumber);
   Future<AuthResponse> verifyOtp(String phoneNumber, String otpCode);
   Future<void> resendOtp(String phoneNumber);
 }
@@ -81,7 +81,7 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
   }
 
   @override
-  Future<void> requestOtp(String phoneNumber) async {
+  Future<String> requestOtp(String phoneNumber) async {
     try {
       // Generate OTP
       final response = await _dio.post(
@@ -92,6 +92,13 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception('Failed to request OTP: ${response.statusCode}');
       }
+
+      // Extract OTP code from response
+      final data = response.data;
+      if (data is Map<String, dynamic> && data.containsKey('otp_code')) {
+        return data['otp_code'].toString();
+      }
+      throw Exception('OTP code not found in response');
     } on DioException catch (e) {
       final errorMsg = _extractErrorMessage(e);
       throw Exception('Failed to request OTP: $errorMsg');
@@ -104,13 +111,13 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
   String _extractErrorMessage(DioException e) {
     try {
       final responseData = e.response?.data;
-      
+
       // If responseData is a Map, try to extract error message
       if (responseData is Map) {
         try {
           // Try to cast to Map<String, dynamic> safely
           final dataMap = Map<String, dynamic>.from(responseData);
-          
+
           // Try 'error' field first
           final error = dataMap['error'];
           if (error != null) {
@@ -119,10 +126,10 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
               return error;
             } else if (error is Map) {
               // Try common error message fields in nested error
-              return error['message']?.toString() ?? 
-                     error['detail']?.toString() ?? 
-                     error['error']?.toString() ??
-                     error.toString();
+              return error['message']?.toString() ??
+                  error['detail']?.toString() ??
+                  error['error']?.toString() ??
+                  error.toString();
             } else if (error is List) {
               // Handle list of errors
               return error.join(', ');
@@ -130,18 +137,18 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
               return error.toString();
             }
           }
-          
+
           // Try other common error fields
           final message = dataMap['message'];
           if (message != null) {
             return message.toString();
           }
-          
+
           final detail = dataMap['detail'];
           if (detail != null) {
             return detail.toString();
           }
-          
+
           // Try 'non_field_errors' (Django REST framework style)
           final nonFieldErrors = dataMap['non_field_errors'];
           if (nonFieldErrors != null) {
@@ -150,7 +157,7 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
             }
             return nonFieldErrors.toString();
           }
-          
+
           // If map has values, try to extract first meaningful message
           if (dataMap.isNotEmpty) {
             return dataMap.values.first.toString();
@@ -163,12 +170,12 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
         // If responseData is a String, use it directly
         return responseData;
       }
-      
+
       // Fallback to DioException message or status code
       if (e.response?.statusCode != null) {
         return e.message ?? 'HTTP ${e.response!.statusCode}';
       }
-      
+
       return e.message ?? 'Unknown error occurred';
     } catch (parseError) {
       // If anything fails, return a safe error message
@@ -190,20 +197,23 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       if (statusCode != null && (statusCode == 200 || statusCode == 201)) {
         // Extract token and user info from response
         final responseData = response.data;
-        
+
         // Handle both Map and String responses
         if (responseData is Map) {
           try {
             // Safely convert to Map<String, dynamic>
             final dataMap = Map<String, dynamic>.from(responseData);
-            
+
             // Token should be in response.data['token'] or response.data['auth_token']
-            final token = dataMap['token']?.toString() ??
-                         dataMap['auth_token']?.toString() ??
-                         dataMap['access_token']?.toString();
+            final token =
+                dataMap['token']?.toString() ??
+                dataMap['auth_token']?.toString() ??
+                dataMap['access_token']?.toString();
 
             if (token == null || token.isEmpty) {
-              throw Exception('Token not found in response. Response: ${responseData.toString()}');
+              throw Exception(
+                'Token not found in response. Response: ${responseData.toString()}',
+              );
             }
 
             // Store token in API client
@@ -218,13 +228,17 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
               phoneNumber: phoneNumber,
             );
           } catch (mapError) {
-            throw Exception('Failed to parse response: $mapError. Response: ${responseData.toString()}');
+            throw Exception(
+              'Failed to parse response: $mapError. Response: ${responseData.toString()}',
+            );
           }
         } else {
-          throw Exception('Invalid response format: expected Map but got ${responseData.runtimeType}. Response: ${responseData.toString()}');
+          throw Exception(
+            'Invalid response format: expected Map but got ${responseData.runtimeType}. Response: ${responseData.toString()}',
+          );
         }
       } else {
-        final errorMsg = statusCode != null 
+        final errorMsg = statusCode != null
             ? 'HTTP $statusCode'
             : 'Unknown status code';
         throw Exception('Failed to verify OTP: $errorMsg');

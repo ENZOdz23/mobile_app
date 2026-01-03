@@ -2,5 +2,5 @@
 
 abstract class LoginRepository {
   Future<bool> checkPhoneNumberExists(String phoneNumber);
-  Future<void> requestOtp(String phoneNumber);
+  Future<String> requestOtp(String phoneNumber);
 }

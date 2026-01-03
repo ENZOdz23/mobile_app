@@ -7,7 +7,7 @@ class RequestOtpUseCase {
 
   RequestOtpUseCase(this.repository);
 
-  Future<void> call(String phoneNumber) async {
-    await repository.requestOtp(phoneNumber);
+  Future<String> call(String phoneNumber) async {
+    return await repository.requestOtp(phoneNumber);
   }
 }

@@ -18,9 +18,9 @@ class LoginRepositoryImpl implements LoginRepository {
   }
 
   @override
-  Future<void> requestOtp(String phoneNumber) async {
+  Future<String> requestOtp(String phoneNumber) async {
     try {
-      await remoteDataSource.requestOtp(phoneNumber);
+      return await remoteDataSource.requestOtp(phoneNumber);
     } catch (e) {
       rethrow;
     }
