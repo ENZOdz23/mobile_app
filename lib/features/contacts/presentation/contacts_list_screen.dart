@@ -263,19 +263,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                           ),
                         ],
                         child: ProspectDetailFormScreen(
-                          prospectId: prospect.id, // Changed: pass ID
-                          onEdit: (updated) => context
-                              .read<ProspectsCubit>()
-                              .updateProspect(updated),
-                          onDelete: (id) {
-                            context.read<ProspectsCubit>().deleteProspect(id);
-                          },
-                          onConvertToClient: () async {
-                            await context
-                                .read<ProspectsCubit>()
-                                .convertProspectToClient(prospect.id);
-                            // Navigator.of(context).pop(); // Removed to prevent double pop
-                          },
+                          prospectId: prospect.id,
                         ),
                       ),
                     ),

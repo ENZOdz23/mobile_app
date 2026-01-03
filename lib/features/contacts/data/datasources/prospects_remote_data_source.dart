@@ -108,9 +108,21 @@ class ProspectsRemoteDataSource implements IProspectsRemoteDataSource {
   @override
   Future<Prospect> updateProspect(Prospect prospect) async {
     try {
+      // Get current user ID from storage
+      final storage = await LocalStorageService.getInstance();
+      final userId = storage.getUserId();
+
+      if (userId == null) {
+        throw Exception('User ID not found. Please login again.');
+      }
+
+      final requestData = prospect.toJson();
+      // Add user field to the request
+      requestData['user'] = userId;
+
       final response = await _dio.put(
         '/$_endpoint/${prospect.id}/',
-        data: prospect.toJson(),
+        data: requestData,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

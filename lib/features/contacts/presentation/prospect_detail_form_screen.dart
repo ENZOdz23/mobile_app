@@ -18,17 +18,11 @@ import '../../contacts/presentation/widgets/section_header.dart';
 import '../../contacts/presentation/widgets/contact_utils.dart';
 
 class ProspectDetailFormScreen extends StatelessWidget {
-  final String prospectId; // Changed: accept ID instead of object
-  final Future<void> Function(Prospect) onEdit;
-  final Function(String) onDelete;
-  final VoidCallback onConvertToClient;
+  final String prospectId;
 
   const ProspectDetailFormScreen({
     super.key,
-    required this.prospectId, // Changed
-    required this.onEdit,
-    required this.onDelete,
-    required this.onConvertToClient,
+    required this.prospectId,
   });
 
   void _showEditForm(BuildContext context, Prospect prospect) {
@@ -38,7 +32,7 @@ class ProspectDetailFormScreen extends StatelessWidget {
       builder: (context) => EditProspectForm(
         initialProspect: prospect,
         onSave: (edited) async {
-          await onEdit(edited);
+          await context.read<ProspectsCubit>().updateProspect(edited);
           Navigator.of(context).pop();
         },
       ),
@@ -65,8 +59,8 @@ class ProspectDetailFormScreen extends StatelessWidget {
     );
 
     if (confirm == true) {
-      onDelete(prospect.id);
-      // Navigator.of(context).pop(); // Removed to prevent double pop (handled by BlocListener)
+      await context.read<ProspectsCubit>().deleteProspect(prospect.id);
+      Navigator.of(context).pop();
     }
   }
 
@@ -149,11 +143,12 @@ class ProspectDetailFormScreen extends StatelessWidget {
         }
 
         // Delete the prospect
-        onConvertToClient();
+        await context.read<ProspectsCubit>().deleteProspect(prospect.id);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Prospect converti en client avec succès!')),
         );
+        Navigator.of(context).pop(); // Go back to list
       } else {
         // Update prospect status
         final updatedProspect = Prospect(
@@ -173,7 +168,7 @@ class ProspectDetailFormScreen extends StatelessWidget {
           status: selectedStatus,
         );
 
-        onEdit(updatedProspect);
+        await context.read<ProspectsCubit>().updateProspect(updatedProspect);
 
         ScaffoldMessenger.of(
           context,
