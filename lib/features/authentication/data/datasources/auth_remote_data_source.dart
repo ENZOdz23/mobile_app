@@ -9,7 +9,7 @@ abstract class IAuthRemoteDataSource {
   Future<bool> checkPhoneNumberExists(String phoneNumber);
   Future<String> requestOtp(String phoneNumber);
   Future<AuthResponse> verifyOtp(String phoneNumber, String otpCode);
-  Future<void> resendOtp(String phoneNumber);
+  Future<String> resendOtp(String phoneNumber);
 }
 
 class AuthRemoteDataSource implements IAuthRemoteDataSource {
@@ -254,17 +254,24 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
   }
 
   @override
-  Future<void> resendOtp(String phoneNumber) async {
+  Future<String> resendOtp(String phoneNumber) async {
     try {
       // Resend OTP using the /otps/generate/ endpoint (creates new OTP)
       final response = await _dio.post(
-        '/otps/',
+        '/otps/generate/',
         data: {'phone_number': phoneNumber},
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception('Failed to resend OTP: ${response.statusCode}');
       }
+
+      // Extract OTP code from response
+      final data = response.data;
+      if (data is Map<String, dynamic> && data.containsKey('otp_code')) {
+        return data['otp_code'].toString();
+      }
+      throw Exception('OTP code not found in response');
     } on DioException catch (e) {
       final errorMsg = _extractErrorMessage(e);
       throw Exception('Remote: Failed to resend OTP - $errorMsg');

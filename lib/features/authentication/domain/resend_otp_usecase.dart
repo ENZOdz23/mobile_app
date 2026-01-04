@@ -6,7 +6,7 @@ class ResendOtpUseCase {
 
   ResendOtpUseCase(this.repository);
 
-  Future<void> call(String phoneNumber) async {
+  Future<String> call(String phoneNumber) async {
     return await repository.resendOtp(phoneNumber);
   }
 }

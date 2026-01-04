@@ -229,12 +229,10 @@ class _OtpScreenState extends State<OtpScreen> {
           if (mounted) {
             _clearOtp();
             _startResendTimer();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Un nouveau code a été envoyé."),
-                backgroundColor: AppColors.accent,
-              ),
-            );
+            // Show OTP popup if otpCode is provided
+            if (state.otpCode != null) {
+              _showOtpPopup(state.otpCode!);
+            }
           }
           setState(() {
             _isLoading = false;

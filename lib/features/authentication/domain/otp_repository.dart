@@ -4,5 +4,5 @@ import '../models/auth_response.dart';
 
 abstract class OtpRepository {
   Future<AuthResponse> verifyOtp(Otp otp);
-  Future<void> resendOtp(String phoneNumber);
+  Future<String> resendOtp(String phoneNumber);
 }

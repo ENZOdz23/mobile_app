@@ -62,8 +62,8 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> resendOtp(String phoneNumber) async {
     try {
       emit(AuthLoading());
-      await resendOtpUseCase(phoneNumber);
-      emit(AuthSuccess('OTP resent successfully'));
+      final otpCode = await resendOtpUseCase(phoneNumber);
+      emit(AuthSuccess('OTP resent successfully', otpCode: otpCode));
     } catch (e) {
       emit(AuthError('Failed to resend OTP: ${e.toString()}'));
     }

@@ -20,9 +20,9 @@ class OtpRepositoryImpl implements OtpRepository {
   }
 
   @override
-  Future<void> resendOtp(String phoneNumber) async {
+  Future<String> resendOtp(String phoneNumber) async {
     try {
-      await remoteDataSource.resendOtp(phoneNumber);
+      return await remoteDataSource.resendOtp(phoneNumber);
     } catch (e) {
       throw Exception('Repository: Failed to resend OTP - $e');
     }

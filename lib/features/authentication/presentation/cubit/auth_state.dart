@@ -8,8 +8,9 @@ class AuthLoading extends AuthState {}
 
 class AuthSuccess extends AuthState {
   final String message;
+  final String? otpCode;
 
-  AuthSuccess(this.message);
+  AuthSuccess(this.message, {this.otpCode});
 }
 
 class AuthError extends AuthState {
