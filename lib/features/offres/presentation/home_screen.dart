@@ -50,7 +50,7 @@ class _OffresScreenState extends State<OffresScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      title: 'Bonjour !',
+      title: 'Offres',
       body: SingleChildScrollView(
         child: Column(
           children: [

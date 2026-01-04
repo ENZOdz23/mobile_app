@@ -10,14 +10,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Green from design
+      backgroundColor: const Color.fromARGB(
+        255,
+        255,
+        255,
+        255,
+      ), // Green from design
       elevation: 0,
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Image.asset(
-          'assets/images/logo.png',
-          fit: BoxFit.contain,
-        ),
+        child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
       ),
       title: Text(
         title,
@@ -26,12 +28,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      actions: actions ??
+      actions:
+          actions ??
           [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.green),
-              onPressed: () {},
-            ),
             IconButton(
               icon: const Icon(Icons.search, color: Colors.green),
               onPressed: () {},
