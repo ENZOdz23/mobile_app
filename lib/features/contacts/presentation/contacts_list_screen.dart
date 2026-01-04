@@ -7,6 +7,7 @@ import '../../../shared/components/base_scaffold.dart';
 import 'contact_form_screen.dart';
 import 'widgets/contact_item.dart';
 import 'widgets/prospect_item.dart';
+import 'widgets/contacts_loading_shimmer.dart';
 import 'prospect_detail_form_screen.dart';
 import '../domain/get_prospects_use_case.dart';
 import '../data/datasources/prospects_remote_data_source.dart';
@@ -165,53 +166,81 @@ class _ContactsListScreenContent extends StatelessWidget {
     return BlocBuilder<ContactsCubit, ContactsState>(
       builder: (context, state) {
         if (state is ContactsLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const ContactsLoadingShimmer();
         } else if (state is ContactsError) {
-          return Center(child: Text(state.message));
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<ContactsCubit>().loadContacts();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: Center(child: Text(state.message)),
+              ),
+            ),
+          );
         } else if (state is ContactsLoaded) {
           final contacts = state.contacts;
 
           if (contacts.isEmpty) {
-            return Center(
-              child: Text(
-                'Aucun client trouvé',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 18,
+            return RefreshIndicator(
+              onRefresh: () async {
+                await context.read<ContactsCubit>().loadContacts();
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Center(
+                    child: Text(
+                      'Aucun client trouvé',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             );
           }
 
-          return ListView.separated(
-            padding: EdgeInsets.all(16),
-            itemCount: contacts.length,
-            itemBuilder: (context, index) {
-              final contact = contacts[index];
-              return ContactItem(
-                contact: contact,
-                onTap: () {
-                  // Pass contact ID instead of contact object
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<ContactsCubit>(),
-                        child: ContactFormScreen(
-                          contactId: contact.id, // Changed: pass ID
-                          onEdit: (updated) => context
-                              .read<ContactsCubit>()
-                              .updateContact(updated),
-                          onDelete: (id) {
-                            context.read<ContactsCubit>().deleteContact(id);
-                          },
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<ContactsCubit>().loadContacts();
+            },
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.all(16),
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                return ContactItem(
+                  contact: contact,
+                  onTap: () {
+                    // Pass contact ID instead of contact object
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<ContactsCubit>(),
+                          child: ContactFormScreen(
+                            contactId: contact.id, // Changed: pass ID
+                            onEdit: (updated) => context
+                                .read<ContactsCubit>()
+                                .updateContact(updated),
+                            onDelete: (id) {
+                              context.read<ContactsCubit>().deleteContact(id);
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-            separatorBuilder: (_, __) => SizedBox(height: 8),
+                    );
+                  },
+                );
+              },
+              separatorBuilder: (_, __) => SizedBox(height: 8),
+            ),
           );
         }
 
@@ -224,54 +253,82 @@ class _ContactsListScreenContent extends StatelessWidget {
     return BlocBuilder<ProspectsCubit, ProspectsState>(
       builder: (context, state) {
         if (state is ProspectsLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const ContactsLoadingShimmer();
         } else if (state is ProspectsError) {
-          return Center(child: Text(state.message));
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<ProspectsCubit>().loadProspects();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: Center(child: Text(state.message)),
+              ),
+            ),
+          );
         } else if (state is ProspectsLoaded) {
           final prospects = state.prospects;
 
           if (prospects.isEmpty) {
-            return Center(
-              child: Text(
-                'Aucun prospect trouvé',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 18,
+            return RefreshIndicator(
+              onRefresh: () async {
+                await context.read<ProspectsCubit>().loadProspects();
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Center(
+                    child: Text(
+                      'Aucun prospect trouvé',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             );
           }
 
-          return ListView.separated(
-            padding: EdgeInsets.all(16),
-            itemCount: prospects.length,
-            itemBuilder: (context, index) {
-              final prospect = prospects[index];
-              return ProspectItem(
-                prospect: prospect,
-                onTap: () {
-                  // Pass prospect ID instead of prospect object
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => MultiBlocProvider(
-                        providers: [
-                          BlocProvider.value(
-                            value: context.read<ContactsCubit>(),
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<ProspectsCubit>().loadProspects();
+            },
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.all(16),
+              itemCount: prospects.length,
+              itemBuilder: (context, index) {
+                final prospect = prospects[index];
+                return ProspectItem(
+                  prospect: prospect,
+                  onTap: () {
+                    // Pass prospect ID instead of prospect object
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider.value(
+                              value: context.read<ContactsCubit>(),
+                            ),
+                            BlocProvider.value(
+                              value: context.read<ProspectsCubit>(),
+                            ),
+                          ],
+                          child: ProspectDetailFormScreen(
+                            prospectId: prospect.id,
                           ),
-                          BlocProvider.value(
-                            value: context.read<ProspectsCubit>(),
-                          ),
-                        ],
-                        child: ProspectDetailFormScreen(
-                          prospectId: prospect.id,
                         ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-            separatorBuilder: (_, __) => SizedBox(height: 8),
+                    );
+                  },
+                );
+              },
+              separatorBuilder: (_, __) => SizedBox(height: 8),
+            ),
           );
         }
 
