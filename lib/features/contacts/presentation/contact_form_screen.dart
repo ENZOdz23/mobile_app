@@ -126,14 +126,16 @@ class ContactFormScreen extends StatelessWidget {
       return;
     }
 
-    final meetUrl = 'https://meet.google.com/new';
+    final meetUri = Uri.parse('https://meet.google.com/new');
 
     try {
-      if (await canLaunchUrl(Uri.parse(meetUrl))) {
-        await launchUrl(
-          Uri.parse(meetUrl),
-          mode: LaunchMode.externalApplication,
-        );
+      // Don't use canLaunchUrl for https URLs - just try to launch directly
+      // canLaunchUrl can return false even when the URL can be opened on Android 11+
+      final launched = await launchUrl(
+        meetUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (launched) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Partagez le lien Google Meet avec ${contact.name}'),
