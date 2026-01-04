@@ -98,7 +98,7 @@ class ContactFormScreen extends StatelessWidget {
     final Uri emailUri = Uri(
       scheme: 'mailto',
       path: email,
-      queryParameters: {'subject': 'Suivi - ${contact.name}'},
+      query: 'subject=Suivi - ${Uri.encodeComponent(contact.name)}',
     );
     try {
       if (await canLaunchUrl(emailUri)) {
