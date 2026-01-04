@@ -11,7 +11,7 @@ class Api {
     BaseOptions(
       baseUrl:
           //192.168.43.26:8000
-          "http://localhost:8000/api", // change this based on the server
+          "https://mobile-app-server-1-vgc2.onrender.com/api/", // change this based on the server
       headers: {"Content-Type": "application/json"},
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),

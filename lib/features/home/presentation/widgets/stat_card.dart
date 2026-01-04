@@ -28,7 +28,7 @@ class StatCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
@@ -42,37 +42,39 @@ class StatCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 24,
-                  ),
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
             const Spacer(),
-            Text(
-              value,
-              style: AppTextStyles.headlineMedium.copyWith(
-                color: onSurfaceColor,
-                fontWeight: FontWeight.bold,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: AppTextStyles.headlineMedium.copyWith(
+                  color: onSurfaceColor,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: onSurfaceColor.withOpacity(0.7),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                title,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: onSurfaceColor.withOpacity(0.7),
+                ),
+                maxLines: 1,
               ),
             ),
           ],
@@ -81,4 +83,3 @@ class StatCard extends StatelessWidget {
     );
   }
 }
-

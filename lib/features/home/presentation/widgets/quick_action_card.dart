@@ -50,20 +50,20 @@ class QuickActionCard extends StatelessWidget {
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: AppColors.primary,
-                  size: 28,
-                ),
+                child: Icon(icon, color: AppColors.primary, size: 28),
               ),
               const SizedBox(height: 8),
-              Text(
-                label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: onSurfaceColor,
-                  fontWeight: FontWeight.w500,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: onSurfaceColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -72,4 +72,3 @@ class QuickActionCard extends StatelessWidget {
     );
   }
 }
-
