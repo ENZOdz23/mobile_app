@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import '../../../core/themes/app_theme.dart';
 import '../models/contact.dart';
 import 'widgets/edit_contact_form.dart';
@@ -70,11 +71,10 @@ class ContactFormScreen extends StatelessWidget {
       return;
     }
 
-    final Uri phoneUri = Uri(scheme: 'tel', path: phone);
     try {
-      if (await canLaunchUrl(phoneUri)) {
-        await launchUrl(phoneUri);
-      } else {
+      // Make direct phone call without opening dialer
+      final success = await FlutterPhoneDirectCaller.callNumber(phone);
+      if (success != true) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Impossible d\'appeler')));

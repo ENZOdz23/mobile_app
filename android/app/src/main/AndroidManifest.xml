@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permission to make direct phone calls -->
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    
     <application
         android:label="crm_sales_performance_mobilis"
         android:name="${applicationName}"
