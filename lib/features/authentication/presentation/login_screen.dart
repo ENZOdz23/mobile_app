@@ -67,8 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!phoneExists) {
         setState(
-          () => _errorMessage =
-              'Phone number not found. Please check and try again.',
+          () => _errorMessage = 'Ce numéro de téléphone n\'est pas enregistré.',
         );
         return;
       }

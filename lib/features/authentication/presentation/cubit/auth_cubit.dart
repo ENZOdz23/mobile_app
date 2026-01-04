@@ -43,7 +43,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthLoading());
       final otp = Otp(code: otpCode, phoneNumber: phoneNumber);
       final authResponse = await verifyOtpUseCase(otp);
-      
+
       // Store token and user info
       final storage = await LocalStorageService.getInstance();
       await storage.saveAuthToken(authResponse.token);
@@ -52,10 +52,10 @@ class AuthCubit extends Cubit<AuthState> {
         await storage.saveUserId(authResponse.userId!);
       }
       await storage.setLoggedIn(true);
-      
+
       emit(OtpVerificationSuccess(true));
     } catch (e) {
-      emit(AuthError('Failed to verify OTP: ${e.toString()}'));
+      emit(AuthError('Code OTP incorrect. Veuillez réessayer.'));
     }
   }
 
