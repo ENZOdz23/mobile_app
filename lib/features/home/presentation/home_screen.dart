@@ -88,12 +88,13 @@ class DashboardBody extends StatelessWidget {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1.3,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 1.3,
+                          ),
                       itemCount: 2,
                       itemBuilder: (context, index) {
                         if (index == 0) {
@@ -139,7 +140,7 @@ class DashboardBody extends StatelessWidget {
                     Row(
                       children: [
                         QuickActionCard(
-                          label: 'Ajouter Client',
+                          label: 'Ajouter Contact',
                           icon: Icons.person_add,
                           onTap: () {
                             Navigator.pushNamed(context, AppRoutes.addContact);
@@ -198,19 +199,17 @@ class DashboardBody extends StatelessWidget {
                               Icon(
                                 Icons.inbox_outlined,
                                 size: 48,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withOpacity(0.3),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.3),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Aucune activité récente',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withOpacity(0.5),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.5),
                                 ),
                               ),
                             ],

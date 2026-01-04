@@ -92,7 +92,7 @@ class _ContactsListScreenContent extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'Clients',
+                            'Contacts',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: selectedType == ContactType.client

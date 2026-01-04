@@ -280,10 +280,13 @@ class _OtpScreenState extends State<OtpScreen> {
                   OtpErrorBox(message: _errorMessage!),
                 ],
                 const SizedBox(height: 32),
-                OtpVerifyButton(
-                  loading: _isLoading,
-                  disabled: _attempts >= _maxAttempts,
-                  onPressed: _verifyOTP,
+                SizedBox(
+                  width: double.infinity,
+                  child: OtpVerifyButton(
+                    loading: _isLoading,
+                    disabled: _attempts >= _maxAttempts,
+                    onPressed: _verifyOTP,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 TextButton(
