@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import '../../../core/themes/app_theme.dart';
 import '../models/contact.dart';
 import 'widgets/edit_contact_form.dart';
@@ -42,27 +43,16 @@ class ContactFormScreen extends StatelessWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
-            SizedBox(width: 12),
-            Text('Supprimer ce contact ?'),
-          ],
-        ),
+        title: Text('Supprimer ce contact ?'),
         content: Text('Cette action est irréversible.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text('Annuler'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: Text('Supprimer'),
+            child: Text('Supprimer', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -81,11 +71,10 @@ class ContactFormScreen extends StatelessWidget {
       return;
     }
 
-    final Uri phoneUri = Uri(scheme: 'tel', path: phone);
     try {
-      if (await canLaunchUrl(phoneUri)) {
-        await launchUrl(phoneUri);
-      } else {
+      // Make direct phone call without opening dialer
+      final success = await FlutterPhoneDirectCaller.callNumber(phone);
+      if (success != true) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Impossible d\'appeler')));
@@ -109,7 +98,7 @@ class ContactFormScreen extends StatelessWidget {
     final Uri emailUri = Uri(
       scheme: 'mailto',
       path: email,
-      queryParameters: {'subject': 'Suivi - ${contact.name}'},
+      query: 'subject=Suivi - ${Uri.encodeComponent(contact.name)}',
     );
     try {
       if (await canLaunchUrl(emailUri)) {
@@ -137,14 +126,16 @@ class ContactFormScreen extends StatelessWidget {
       return;
     }
 
-    final meetUrl = 'https://meet.google.com/new';
+    final meetUri = Uri.parse('https://meet.google.com/new');
 
     try {
-      if (await canLaunchUrl(Uri.parse(meetUrl))) {
-        await launchUrl(
-          Uri.parse(meetUrl),
-          mode: LaunchMode.externalApplication,
-        );
+      // Don't use canLaunchUrl for https URLs - just try to launch directly
+      // canLaunchUrl can return false even when the URL can be opened on Android 11+
+      final launched = await launchUrl(
+        meetUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (launched) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Partagez le lien Google Meet avec ${contact.name}'),

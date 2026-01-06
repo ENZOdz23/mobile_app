@@ -6,6 +6,7 @@ import '/../../../core/themes/app_theme.dart';
 import '../../../../shared/validators/phone_validator.dart';
 
 import '../data/login_repository_impl.dart';
+import '../domain/check_phone_exists_usecase.dart';
 import '../domain/request_otp_usecase.dart';
 import '../models/login.dart';
 
@@ -26,7 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-  // Use case
+  // Use cases
+  late final CheckPhoneExistsUseCase _checkPhoneExistsUseCase;
   late final RequestOtpUseCase _requestOtpUseCase;
 
   @override
@@ -39,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     final repository = LoginRepositoryImpl();
+    _checkPhoneExistsUseCase = CheckPhoneExistsUseCase(repository);
     _requestOtpUseCase = RequestOtpUseCase(repository);
   }
 
@@ -57,15 +60,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final phone = _phoneController.text;
+
+      // Step 1: Check if phone number exists
+      debugPrint('Checking if phone number exists...');
+      final phoneExists = await _checkPhoneExistsUseCase.call(phone);
+
+      if (!phoneExists) {
+        setState(
+          () => _errorMessage = 'Ce numéro de téléphone n\'est pas enregistré.',
+        );
+        return;
+      }
+
+      // Step 2: Phone exists, proceed with OTP request
+      debugPrint('Phone number found. Requesting OTP...');
       final login = Login(phoneNumber: phone);
-      await _requestOtpUseCase.call(login.phoneNumber);
+      final otpCode = await _requestOtpUseCase.call(login.phoneNumber);
 
       if (mounted) {
-        Navigator.pushNamed(context, '/otp', arguments: phone);
+        // Navigate to OTP screen with phone number and OTP code
+        Navigator.pushNamed(
+          context,
+          '/otp',
+          arguments: {'phoneNumber': phone, 'otpCode': otpCode},
+        );
       }
     } catch (e) {
-      // Log and show the actual server/network error to help debugging
-      // The repository throws Exceptions with server messages when available.
+      // Log and show errors
       debugPrint('requestOtp error: $e');
       final msg = e.toString().replaceFirst('Exception: ', '');
       setState(() => _errorMessage = msg);

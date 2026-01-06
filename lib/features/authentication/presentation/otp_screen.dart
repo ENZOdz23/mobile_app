@@ -2,11 +2,17 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/config/routes.dart';
 import '../models/otp.dart';
 import '../domain/verify_otp_usecase.dart';
 import '../domain/resend_otp_usecase.dart';
+import '../domain/request_otp_usecase.dart';
 import '../data/otp_repository_impl.dart';
+import '../data/datasources/auth_remote_data_source.dart';
+import '../presentation/cubit/auth_cubit.dart';
+import '../presentation/cubit/auth_state.dart';
 
 // Reusable widgetss
 import 'widgets/opt/otp_field.dart';
@@ -16,8 +22,9 @@ import 'widgets/opt/otp_verify_button.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? otpCode;
 
-  const OtpScreen({super.key, required this.phoneNumber});
+  const OtpScreen({super.key, required this.phoneNumber, this.otpCode});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -38,10 +45,6 @@ class _OtpScreenState extends State<OtpScreen> {
   int _attempts = 0;
   final int _maxAttempts = 3;
 
-  // Use cases
-  late final VerifyOtpUseCase _verifyOtpUseCase;
-  late final ResendOtpUseCase _resendOtpUseCase;
-
   @override
   void initState() {
     super.initState();
@@ -50,12 +53,47 @@ class _OtpScreenState extends State<OtpScreen> {
     _controllers = List.generate(_otpLength, (_) => TextEditingController());
     _focusNodes = List.generate(_otpLength, (_) => FocusNode());
 
-    // Initialize repository and use cases
-    final repository = OtpRepositoryImpl();
-    _verifyOtpUseCase = VerifyOtpUseCase(repository);
-    _resendOtpUseCase = ResendOtpUseCase(repository);
-
     _startResendTimer();
+
+    // Show OTP popup if otpCode is provided
+    if (widget.otpCode != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showOtpPopup(widget.otpCode!);
+      });
+    }
+  }
+
+  void _showOtpPopup(String otpCode) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Code OTP'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Votre code OTP est:'),
+              const SizedBox(height: 16),
+              Text(
+                otpCode,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 4,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -113,36 +151,8 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    try {
-      final otp = Otp(code: otpCode, phoneNumber: widget.phoneNumber);
-      final isValid = await _verifyOtpUseCase(otp);
-
-      if (isValid) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
-      } else {
-        _attempts++;
-        if (_attempts >= _maxAttempts) {
-          setState(() {
-            _errorMessage = 'Compte temporairement bloqué pendant 1 heure.';
-          });
-        } else {
-          setState(() {
-            _errorMessage =
-                'Code incorrect ou expiré. Veuillez ressayer. '
-                '(${_maxAttempts - _attempts} tentatives restantes)';
-          });
-          _clearOtp();
-        }
-      }
-    } catch (_) {
-      setState(() {
-        _errorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    // Use AuthCubit to verify OTP (it will handle token storage)
+    context.read<AuthCubit>().verifyOtp(widget.phoneNumber, otpCode);
   }
 
   // ------------------------ RESEND OTP ------------------------
@@ -155,27 +165,8 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    try {
-      await _resendOtpUseCase(widget.phoneNumber);
-
-      _clearOtp();
-      _startResendTimer();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Un nouveau code a été envoyé."),
-            backgroundColor: AppColors.accent,
-          ),
-        );
-      }
-    } catch (_) {
-      setState(() {
-        _errorMessage = "Impossible de renvoyer le code. Veuillez réessayer.";
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    // Use AuthCubit to resend OTP
+    context.read<AuthCubit>().resendOtp(widget.phoneNumber);
   }
 
   // ------------------------ BUILD OTP FIELD ------------------------
@@ -210,67 +201,109 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(
-          color: Theme.of(context).colorScheme.onSurface,
-          onPressed: () {
-            _timer?.cancel();
-            Navigator.pop(context);
-          },
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is OtpVerificationSuccess) {
+          // Navigate to dashboard on successful verification
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+          }
+        } else if (state is AuthError) {
+          setState(() {
+            _isLoading = false;
+            _attempts++;
+            if (_attempts >= _maxAttempts) {
+              _errorMessage = 'Compte temporairement bloqué pendant 1 heure.';
+            } else {
+              _errorMessage = state.message;
+              _clearOtp();
+            }
+          });
+        } else if (state is AuthLoading) {
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+        } else if (state is AuthSuccess) {
+          // Handle resend OTP success
+          if (mounted) {
+            _clearOtp();
+            _startResendTimer();
+            // Show OTP popup if otpCode is provided
+            if (state.otpCode != null) {
+              _showOtpPopup(state.otpCode!);
+            }
+          }
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: BackButton(
+            color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () {
+              _timer?.cancel();
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset('assets/images/logo.png', height: 80),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Suivez et optimisez vos ventes grâce à notre plateforme.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 40),
-              OtpPhoneBox(phone: widget.phoneNumber),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(_otpLength, _buildOtpBox),
-              ),
-              if (_errorMessage != null) ...[
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset('assets/images/logo.png', height: 80),
+                ),
                 const SizedBox(height: 16),
-                OtpErrorBox(message: _errorMessage!),
-              ],
-              const SizedBox(height: 32),
-              OtpVerifyButton(
-                loading: _isLoading,
-                disabled: _attempts >= _maxAttempts,
-                onPressed: _verifyOTP,
-              ),
-              const SizedBox(height: 24),
-              TextButton(
-                onPressed: _canResend && !_isLoading ? _resendOTP : null,
-                child: Text(
-                  _canResend
-                      ? "Renvoyer le code"
-                      : "Renvoyer dans $_resendTimer s",
-                  style: TextStyle(
-                    color: _canResend ? AppColors.primary : Colors.grey,
-                    fontWeight: FontWeight.w600,
+                Text(
+                  'Suivez et optimisez vos ventes grâce à notre plateforme.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 40),
+                OtpPhoneBox(phone: widget.phoneNumber),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(_otpLength, _buildOtpBox),
+                ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  OtpErrorBox(message: _errorMessage!),
+                ],
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: OtpVerifyButton(
+                    loading: _isLoading,
+                    disabled: _attempts >= _maxAttempts,
+                    onPressed: _verifyOTP,
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: _canResend && !_isLoading ? _resendOTP : null,
+                  child: Text(
+                    _canResend
+                        ? "Renvoyer le code"
+                        : "Renvoyer dans $_resendTimer s",
+                    style: TextStyle(
+                      color: _canResend ? AppColors.primary : Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

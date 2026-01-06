@@ -2,17 +2,17 @@
 
 import '../domain/prospect_repository.dart';
 import '../models/prospect.dart';
-import 'prospect_local_data_source.dart';
+import 'datasources/prospects_remote_data_source.dart';
 
 class ProspectRepositoryImpl implements ProspectRepository {
-  final ProspectsLocalDataSource localDataSource;
+  final IProspectsRemoteDataSource remoteDataSource;
 
-  ProspectRepositoryImpl({required this.localDataSource});
+  ProspectRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<List<Prospect>> getProspects() async {
     try {
-      return await localDataSource.getProspects();
+      return await remoteDataSource.getProspects();
     } catch (e) {
       throw Exception('Repository: Failed to get prospects - $e');
     }
@@ -21,7 +21,7 @@ class ProspectRepositoryImpl implements ProspectRepository {
   @override
   Future<void> addProspect(Prospect prospect) async {
     try {
-      await localDataSource.addProspect(prospect);
+      await remoteDataSource.createProspect(prospect);
     } catch (e) {
       throw Exception('Repository: Failed to add prospect - $e');
     }
@@ -30,7 +30,7 @@ class ProspectRepositoryImpl implements ProspectRepository {
   @override
   Future<void> updateProspect(Prospect prospect) async {
     try {
-      await localDataSource.updateProspect(prospect);
+      await remoteDataSource.updateProspect(prospect);
     } catch (e) {
       throw Exception('Repository: Failed to update prospect - $e');
     }
@@ -39,7 +39,7 @@ class ProspectRepositoryImpl implements ProspectRepository {
   @override
   Future<void> deleteProspect(String id) async {
     try {
-      await localDataSource.deleteProspect(id);
+      await remoteDataSource.deleteProspect(id);
     } catch (e) {
       throw Exception('Repository: Failed to delete prospect - $e');
     }
