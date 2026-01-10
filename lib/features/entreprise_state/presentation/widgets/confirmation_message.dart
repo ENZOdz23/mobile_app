@@ -5,10 +5,10 @@ class ConfirmationMessageBar extends StatelessWidget {
   final String message;
 
   const ConfirmationMessageBar({
-    Key? key,
+    super.key,
     required this.visible,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

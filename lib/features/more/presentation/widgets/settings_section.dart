@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/config/routes.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';

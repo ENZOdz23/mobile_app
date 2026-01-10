@@ -7,7 +7,6 @@ import '../../../../core/themes/app_theme.dart';
 import '../cubit/activities_cubit.dart';
 import '../widgets/activity_item.dart';
 import '../widgets/dashboard_error_widget.dart';
-import '../widgets/dashboard_loading_shimmer.dart';
 
 class RecentActivitiesScreen extends StatelessWidget {
   const RecentActivitiesScreen({super.key});

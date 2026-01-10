@@ -8,6 +8,8 @@ import 'widgets/event_card.dart';
 import 'widgets/floating_add_button.dart';
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
