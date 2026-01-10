@@ -26,7 +26,7 @@ class DashboardHeader extends StatelessWidget {
       'Jeudi',
       'Vendredi',
       'Samedi',
-      'Dimanche'
+      'Dimanche',
     ];
     const months = [
       'Jan',
@@ -40,7 +40,7 @@ class DashboardHeader extends StatelessWidget {
       'Sep',
       'Oct',
       'Nov',
-      'Déc'
+      'Déc',
     ];
 
     final weekday = weekdays[date.weekday - 1];
@@ -75,11 +75,7 @@ class DashboardHeader extends StatelessWidget {
           CircleAvatar(
             radius: 30,
             backgroundColor: AppColors.onPrimary,
-            child: Icon(
-              Icons.person,
-              size: 32,
-              color: AppColors.primary,
-            ),
+            child: Icon(Icons.person, size: 32, color: AppColors.primary),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -103,18 +99,8 @@ class DashboardHeader extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: AppColors.onPrimary,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.notifications);
-            },
-          ),
         ],
       ),
     );
   }
 }
-

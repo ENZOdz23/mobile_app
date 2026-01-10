@@ -4,21 +4,31 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
+  final bool showBackButton;
 
-  const CustomAppBar({super.key, required this.title, this.actions});
+  const CustomAppBar({
+    super.key,
+    required this.title,
+    this.actions,
+    this.showBackButton = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Green from design
+      backgroundColor: const Color.fromARGB(
+        255,
+        255,
+        255,
+        255,
+      ), // Green from design
       elevation: 0,
-      leading: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Image.asset(
-          'assets/images/logo.png',
-          fit: BoxFit.contain,
-        ),
-      ),
+      leading: showBackButton
+          ? const BackButton(color: Colors.green)
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+            ),
       title: Text(
         title,
         style: const TextStyle(
@@ -26,17 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      actions: actions ??
-          [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.green),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.green),
-              onPressed: () {},
-            ),
-          ],
+      actions: actions ?? [],
     );
   }
 
