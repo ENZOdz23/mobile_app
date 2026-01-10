@@ -58,7 +58,7 @@ class _ContactsListScreenContent extends StatelessWidget {
     final theme = Theme.of(context);
 
     return BaseScaffold(
-      title: 'Liste des Contacts',
+      title: 'Prospects et Contacts',
       body: Column(
         children: [
           // Tab selector
