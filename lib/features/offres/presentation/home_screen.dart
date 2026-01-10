@@ -59,6 +59,15 @@ class _OffresScreenState extends State<OffresScreen> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: 'Offres B2B',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.storage),
+          tooltip: 'Vérification Base de Données',
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.offresVerification);
+          },
+        ),
+      ],
       body: Column(
         children: [
           // Category filter chips

@@ -1,8 +1,6 @@
 // lib/features/authentication/presentation/screens/login_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '/../../../core/themes/app_theme.dart';
 import '../../../../shared/validators/phone_validator.dart';
 
 import '../data/login_repository_impl.dart';

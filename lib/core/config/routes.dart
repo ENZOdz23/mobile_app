@@ -39,6 +39,7 @@ import '../../features/home/presentation/screens/kpis_screen.dart';
 import '../../features/home/presentation/screens/goals_screen.dart';
 import '../../features/home/presentation/screens/recent_activities_screen.dart';
 import '../../features/home/presentation/screens/plan_meeting_screen.dart';
+import '../../features/offres/presentation/offres_verification_screen.dart';
 
 class AppRoutes {
   static const String login = '/';
@@ -62,6 +63,7 @@ class AppRoutes {
   static const String recentActivities = '/recent-activities';
   static const String addProspect = '/add-prospect';
   static const String planMeeting = '/plan-meeting';
+  static const String offresVerification = '/offres-verification';
 
   static const String addContact = '/add-contact';
 
@@ -215,6 +217,11 @@ class AppRoutes {
 
       case planMeeting:
         return MaterialPageRoute(builder: (_) => const PlanMeetingScreen());
+
+      case offresVerification:
+        return MaterialPageRoute(
+          builder: (_) => const OffresVerificationScreen(),
+        );
 
       default:
         return MaterialPageRoute(

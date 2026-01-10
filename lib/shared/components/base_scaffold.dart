@@ -11,12 +11,14 @@ class BaseScaffold extends StatefulWidget {
   final Widget body;
   final bool showBottomNav;
   final bool showBackButton;
+  final List<Widget>? actions;
 
   const BaseScaffold({
     required this.title,
     required this.body,
     this.showBottomNav = true,
     this.showBackButton = false,
+    this.actions,
     super.key,
   });
 
@@ -63,6 +65,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       appBar: CustomAppBar(
         title: widget.title,
         showBackButton: widget.showBackButton,
+        actions: widget.actions,
       ),
       body: Stack(
         children: [
