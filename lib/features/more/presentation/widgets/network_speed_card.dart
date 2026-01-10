@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/network_speed.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 
 class NetworkSpeedCard extends StatelessWidget {
   final NetworkSpeed speed;
@@ -14,6 +15,7 @@ class NetworkSpeedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -34,7 +36,7 @@ class NetworkSpeedCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Test de vitesse réseau',
+                s.networkSpeedTest,
                 style: AppTextStyles.headlineMedium.copyWith(  // Changed
                   fontSize: 18,
                 ),
@@ -45,7 +47,7 @@ class NetworkSpeedCard extends StatelessWidget {
                   color: AppColors.primary,
                 ),
                 onPressed: onTest,
-                tooltip: speed.isLoading ? 'Annuler le test' : 'Démarrer le test',
+                tooltip: speed.isLoading ? s.cancelTest : s.startTest,
               ),
             ],
           ),
@@ -78,14 +80,14 @@ class NetworkSpeedCard extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     speed.isDownloadComplete
-                        ? 'Test de téléversement...'
-                        : 'Test de téléchargement...',
+                        ? s.uploadTest
+                        : s.downloadTest,
                     style: AppTextStyles.bodyMedium,
                   ),
                   if (speed.downloadSpeed > 0) ...[
                     const SizedBox(height: 16),
                     _buildSpeedItem(
-                      'Téléchargement',
+                      s.download,
                       speed.getDownloadSpeedDisplay(),
                       Icons.download,
                       isComplete: speed.isDownloadComplete,
@@ -94,7 +96,7 @@ class NetworkSpeedCard extends StatelessWidget {
                   if (speed.uploadSpeed > 0) ...[
                     const SizedBox(height: 12),
                     _buildSpeedItem(
-                      'Téléversement',
+                      s.upload,
                       speed.getUploadSpeedDisplay(),
                       Icons.upload,
                       isComplete: speed.isUploadComplete,
@@ -108,7 +110,7 @@ class NetworkSpeedCard extends StatelessWidget {
               children: [
                 if (speed.downloadSpeed > 0) ...[
                   _buildSpeedItem(
-                    'Téléchargement',
+                    s.download,
                     speed.getDownloadSpeedDisplay(),
                     Icons.download,
                     isComplete: true,
@@ -117,7 +119,7 @@ class NetworkSpeedCard extends StatelessWidget {
                 ],
                 if (speed.uploadSpeed > 0) ...[
                   _buildSpeedItem(
-                    'Téléversement',
+                    s.upload,
                     speed.getUploadSpeedDisplay(),
                     Icons.upload,
                     isComplete: true,
@@ -130,7 +132,7 @@ class NetworkSpeedCard extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onTest,
                 icon: const Icon(Icons.play_arrow),
-                label: const Text('Démarrer le test'),
+                label: Text(s.startTest),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,  // Changed
                   foregroundColor: AppColors.onPrimary,  // Changed

@@ -54,7 +54,7 @@ class SettingsSection extends StatelessWidget {
           // I'll stick to what is in ARB.
           _buildSettingItem(
             icon: Icons.security,
-            title: 'Confidentialité',
+            title: s.privacy,
             onTap: () {
               Navigator.pushNamed(context, '/privacy');
             },
@@ -62,7 +62,7 @@ class SettingsSection extends StatelessWidget {
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.help,
-            title: 'Aide et support',
+            title: s.helpAndSupport,
             onTap: () {
               Navigator.pushNamed(context, '/help');
             },
@@ -70,7 +70,7 @@ class SettingsSection extends StatelessWidget {
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.info,
-            title: 'À propos',
+            title: s.about,
             onTap: () {
               Navigator.pushNamed(context, '/about');
             },
@@ -94,11 +94,11 @@ class SettingsSection extends StatelessWidget {
         final s = S.of(context)!;
         return AlertDialog(
           title: Text(s.logout),
-          content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+          content: Text(s.logoutConfirmation),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Annuler'),
+              child: Text(s.cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -129,7 +129,7 @@ class SettingsSection extends StatelessWidget {
                 }
               },
               style: TextButton.styleFrom(foregroundColor: AppColors.error),
-              child: const Text('Déconnexion'),
+              child: Text(s.logout),
             ),
           ],
         );

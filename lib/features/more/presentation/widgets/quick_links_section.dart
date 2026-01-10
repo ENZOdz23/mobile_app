@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 import '../statistics_screen.dart';
 
 class QuickLinksSection extends StatelessWidget {
@@ -7,6 +8,7 @@ class QuickLinksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -24,7 +26,7 @@ class QuickLinksSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Accès rapide',
+            s.quickAccess,
             style: AppTextStyles.headlineMedium.copyWith(
               // Changed
               fontSize: 18,
@@ -33,7 +35,7 @@ class QuickLinksSection extends StatelessWidget {
           const SizedBox(height: 16),
           _buildQuickLinkItem(
             icon: Icons.calendar_today,
-            title: 'Calendrier',
+            title: s.calendar,
             onTap: () {
               Navigator.pushNamed(context, '/calendar');
             },
@@ -41,7 +43,7 @@ class QuickLinksSection extends StatelessWidget {
           const Divider(height: 1),
           _buildQuickLinkItem(
             icon: Icons.analytics,
-            title: 'Statistiques',
+            title: s.statistics,
             onTap: () {
               Navigator.push(
                 context,
