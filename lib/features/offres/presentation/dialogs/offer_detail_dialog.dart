@@ -74,7 +74,7 @@ class OfferDetailDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      offer.description,
+                      offer.fullDescription,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                         height: 1.5,

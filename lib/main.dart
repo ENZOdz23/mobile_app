@@ -47,7 +47,6 @@ class ProspectraApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.light, // Default to light mode
-
       // Routing
       initialRoute: AppRoutes.login,
       onGenerateRoute: AppRoutes.generateRoute,
@@ -64,7 +63,9 @@ class ProspectraApp extends StatelessWidget {
         return MediaQuery(
           // Prevent text scaling beyond reasonable limits
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.3)),
+            textScaler: TextScaler.linear(
+              MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.3),
+            ),
           ),
           child: child!,
         );
