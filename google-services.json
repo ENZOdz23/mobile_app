@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "802873947926",
+    "project_id": "prospecta1",
+    "storage_bucket": "prospecta1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802873947926:android:02ece6c3f7425947ec8237",
+        "android_client_info": {
+          "package_name": "com.prospecta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0988VG73Lb-MMcou_IHPGryBBRBIg7xU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

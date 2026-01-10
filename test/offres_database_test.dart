@@ -2,11 +2,16 @@
 // Run this in Dart DevTools console or create a test file
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:crm_sales_performance_mobilis/features/offres/data/offres_local_data_source.dart';
 import 'package:crm_sales_performance_mobilis/features/offres/data/offer_repository.dart';
 import 'package:crm_sales_performance_mobilis/features/offres/models/offer_model.dart';
 
 void main() {
+  // Initialize FFI for database tests
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+
   group('Offres Local Database Tests', () {
     late OffresLocalDataSource dataSource;
     late OfferRepository repository;
