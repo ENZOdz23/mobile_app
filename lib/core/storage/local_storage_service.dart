@@ -7,6 +7,7 @@ class LocalStorageService {
   static const String _keyUserId = 'user_id';
   static const String _keyUserPhone = 'user_phone';
   static const String _keyIsLoggedIn = 'is_logged_in';
+  static const String _keyLanguage = 'language_code';
 
   static LocalStorageService? _instance;
   static SharedPreferences? _prefs;
@@ -65,6 +66,15 @@ class LocalStorageService {
 
   bool isLoggedIn() {
     return _prefs?.getBool(_keyIsLoggedIn) ?? false;
+  }
+
+  // Language
+  Future<void> saveLanguage(String languageCode) async {
+    await _prefs?.setString(_keyLanguage, languageCode);
+  }
+
+  String? getLanguage() {
+    return _prefs?.getString(_keyLanguage);
   }
 
   // Clear all auth data
