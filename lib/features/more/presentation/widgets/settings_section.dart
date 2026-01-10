@@ -8,12 +8,14 @@ import '../../../authentication/domain/resend_otp_usecase.dart';
 import '../../../authentication/data/otp_repository_impl.dart';
 import '../../../authentication/data/login_repository_impl.dart';
 import '../../../authentication/data/datasources/auth_remote_data_source.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -31,7 +33,7 @@ class SettingsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Paramètres',
+            s.settings,
             style: AppTextStyles.headlineMedium.copyWith(
               // Changed
               fontSize: 18,
@@ -40,16 +42,19 @@ class SettingsSection extends StatelessWidget {
           const SizedBox(height: 16),
           _buildSettingItem(
             icon: Icons.language,
-            title: 'Langue',
-            trailing: 'Français',
+            title: s.language,
+            // trailing: 'Français', // Optional: could show current language
             onTap: () {
               Navigator.pushNamed(context, '/language');
             },
           ),
           const Divider(height: 1),
+          // Privacy, Help, About remain hardcoded for now as they were not in the ARB or I can add them if I want to be thorough but the plan only had specific strings.
+          // The ARB file has: settings, logout, language. It does not have privacy, help, about.
+          // I'll stick to what is in ARB.
           _buildSettingItem(
             icon: Icons.security,
-            title: 'Confidentialité',
+            title: s.privacy,
             onTap: () {
               Navigator.pushNamed(context, '/privacy');
             },
@@ -57,7 +62,7 @@ class SettingsSection extends StatelessWidget {
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.help,
-            title: 'Aide et support',
+            title: s.helpAndSupport,
             onTap: () {
               Navigator.pushNamed(context, '/help');
             },
@@ -65,7 +70,7 @@ class SettingsSection extends StatelessWidget {
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.info,
-            title: 'À propos',
+            title: s.about,
             onTap: () {
               Navigator.pushNamed(context, '/about');
             },
@@ -73,7 +78,7 @@ class SettingsSection extends StatelessWidget {
           const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.logout,
-            title: 'Déconnexion',
+            title: s.logout,
             iconColor: AppColors.error, // Changed
             onTap: () => _showLogoutDialog(context),
           ),
@@ -85,45 +90,50 @@ class SettingsSection extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Déconnexion'),
-        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(dialogContext).pop(); // Close dialog
+      builder: (dialogContext) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.logout),
+          content: Text(s.logoutConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(s.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop(); // Close dialog
 
-              // Create AuthCubit and perform logout
-              final authCubit = AuthCubit(
-                requestOtpUseCase: RequestOtpUseCase(
-                  LoginRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
-                ),
-                verifyOtpUseCase: VerifyOtpUseCase(
-                  OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
-                ),
-                resendOtpUseCase: ResendOtpUseCase(
-                  OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
-                ),
-              );
+                // Create AuthCubit and perform logout
+                final authCubit = AuthCubit(
+                  requestOtpUseCase: RequestOtpUseCase(
+                    LoginRepositoryImpl(
+                      remoteDataSource: AuthRemoteDataSource(),
+                    ),
+                  ),
+                  verifyOtpUseCase: VerifyOtpUseCase(
+                    OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
+                  ),
+                  resendOtpUseCase: ResendOtpUseCase(
+                    OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
+                  ),
+                );
 
-              await authCubit.logout();
+                await authCubit.logout();
 
-              // Navigate to login and remove all previous routes
-              if (context.mounted) {
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Déconnexion'),
-          ),
-        ],
-      ),
+                // Navigate to login and remove all previous routes
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                }
+              },
+              style: TextButton.styleFrom(foregroundColor: AppColors.error),
+              child: Text(s.logout),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -1,43 +1,46 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/components/base_scaffold.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return BaseScaffold(
-      title: 'Aide et support',
+      title: s.helpAndSupport,
       showBottomNav: false,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildContactCard(),
+          _buildContactCard(context),
           const SizedBox(height: 24),
           Text(
-            'FAQ',
+            s.faq,
             style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
           ),
           const SizedBox(height: 16),
           _buildFaqItem(
-            'Comment changer mon mot de passe ?',
-            'Allez dans Paramètres > Sécurité > Changer le mot de passe.',
+            s.howToChangePassword,
+            s.howToChangePasswordAnswer,
           ),
           _buildFaqItem(
-            'Comment contacter le support ?',
-            'Vous pouvez nous appeler ou nous envoyer un email via les boutons ci-dessus.',
+            s.howToContactSupport,
+            s.howToContactSupportAnswer,
           ),
           _buildFaqItem(
-            'L\'application ne se synchronise pas',
-            'Vérifiez votre connexion internet et essayez de tirer vers le bas pour rafraîchir.',
+            s.appNotSyncing,
+            s.appNotSyncingAnswer,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContactCard() {
+  Widget _buildContactCard(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -53,14 +56,14 @@ class HelpScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
-            'Besoin d\'aide ?',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            s.needHelp,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Notre équipe est disponible 24/7',
-            style: TextStyle(color: Colors.grey),
+          Text(
+            s.supportAvailable,
+            style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
           Row(
@@ -69,7 +72,7 @@ class HelpScreen extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.phone),
-                  label: const Text('Appeler'),
+                  label: Text(s.call),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -81,7 +84,7 @@ class HelpScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.email),
-                  label: const Text('Email'),
+                  label: Text(s.email),
                 ),
               ),
             ],

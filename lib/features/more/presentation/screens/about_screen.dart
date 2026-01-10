@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/components/base_scaffold.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return BaseScaffold(
-      title: 'À propos',
+      title: s.about,
       showBottomNav: false,
       body: Center(
         child: Column(
@@ -36,13 +38,13 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Version 1.0.0',
+              '${s.version} 1.0.0',
               style: AppTextStyles.bodyLarge.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 48),
-            const Text(
-              '© 2025 Mobilis. Tous droits réservés.',
-              style: TextStyle(color: Colors.grey),
+            Text(
+              s.copyright,
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),

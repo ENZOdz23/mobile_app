@@ -1,29 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/components/base_scaffold.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return BaseScaffold(
-      title: 'Mon portefeuille',
+      title: s.myWallet,
       showBottomNav: false,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildBalanceCard(),
+            _buildBalanceCard(context),
             const SizedBox(height: 24),
-            _buildTransactionsList(),
+            _buildTransactionsList(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBalanceCard() {
+  Widget _buildBalanceCard(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -45,9 +48,9 @@ class WalletScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Solde actuel',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
+          Text(
+            s.currentBalance,
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -61,9 +64,9 @@ class WalletScreen extends StatelessWidget {
           const SizedBox(height: 24),
           Row(
             children: [
-              _buildActionButton(Icons.add, 'Recharger'),
+              _buildActionButton(Icons.add, s.recharge),
               const SizedBox(width: 16),
-              _buildActionButton(Icons.history, 'Historique'),
+              _buildActionButton(Icons.history, s.history),
             ],
           ),
         ],
@@ -97,12 +100,13 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionsList() {
+  Widget _buildTransactionsList(BuildContext context) {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Dernières transactions',
+          s.latestTransactions,
           style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
         ),
         const SizedBox(height: 16),
@@ -124,7 +128,7 @@ class WalletScreen extends StatelessWidget {
                 ),
               ),
               title: Text(
-                index % 2 == 0 ? 'Commission Vente #123$index' : 'Retrait',
+                index % 2 == 0 ? '${s.salesCommission} #123$index' : s.withdrawal,
                 style: AppTextStyles.bodyLarge,
               ),
               subtitle: Text(

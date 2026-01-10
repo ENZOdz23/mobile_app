@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/components/base_scaffold.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/i18n/l10n/app_localizations.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return BaseScaffold(
-      title: 'Confidentialité',
+      title: s.privacy,
       showBottomNav: false,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildSection(
-            'Politique de confidentialité',
-            'Nous prenons votre vie privée très au sérieux. Toutes vos données sont chiffrées et stockées de manière sécurisée.',
+            s.privacyPolicy,
+            s.privacyPolicyContent,
           ),
           const SizedBox(height: 24),
           _buildSection(
-            'Utilisation des données',
-            'Vos données sont utilisées uniquement pour améliorer votre expérience utilisateur et vous fournir des services personnalisés.',
+            s.dataUsage,
+            s.dataUsageContent,
           ),
           const SizedBox(height: 24),
-          _buildToggleItem('Partager les données d\'utilisation', true),
+          _buildToggleItem(s.shareUsageData, true),
           const Divider(),
-          _buildToggleItem('Autoriser la géolocalisation', true),
+          _buildToggleItem(s.allowGeolocation, true),
           const Divider(),
-          _buildToggleItem('Notifications marketing', false),
+          _buildToggleItem(s.marketingNotifications, false),
         ],
       ),
     );

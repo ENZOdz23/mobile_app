@@ -13,6 +13,7 @@ import '../domain/test_network_speed_usecase.dart';
 import '../models/network_speed.dart';
 import '../../../shared/components/base_scaffold.dart';
 import '../../../core/themes/app_theme.dart';
+import '../../../core/i18n/l10n/app_localizations.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -37,8 +38,9 @@ class MoreScreenView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return BaseScaffold(
-      title: 'Plus',
+      title: s.more,
       body: BlocBuilder<MoreCubit, MoreState>(
         builder: (context, state) {
           if (state is MoreLoading) {
