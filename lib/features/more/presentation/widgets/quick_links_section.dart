@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
+import '../statistics_screen.dart';
 
 class QuickLinksSection extends StatelessWidget {
   const QuickLinksSection({super.key});
@@ -31,14 +32,6 @@ class QuickLinksSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildQuickLinkItem(
-            icon: Icons.account_balance_wallet,
-            title: 'Mon portefeuille',
-            onTap: () {
-              Navigator.pushNamed(context, '/wallet');
-            },
-          ),
-          const Divider(height: 1),
-          _buildQuickLinkItem(
             icon: Icons.calendar_today,
             title: 'Calendrier',
             onTap: () {
@@ -47,15 +40,16 @@ class QuickLinksSection extends StatelessWidget {
           ),
           const Divider(height: 1),
           _buildQuickLinkItem(
-            icon: Icons.import_export,
-            title: 'Importer des contacts',
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          _buildQuickLinkItem(
             icon: Icons.analytics,
             title: 'Statistiques',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StatisticsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),

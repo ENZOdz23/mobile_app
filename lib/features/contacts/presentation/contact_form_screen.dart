@@ -18,11 +18,11 @@ class ContactFormScreen extends StatelessWidget {
   final Function(String) onDelete;
 
   const ContactFormScreen({
-    Key? key,
+    super.key,
     required this.contactId, // Changed
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   void _showEditForm(BuildContext context, Contact contact) {
     showModalBottomSheet(

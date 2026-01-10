@@ -10,13 +10,13 @@ class CalendarWidget extends StatelessWidget {
   final void Function(DateTime focusedDay)? onPageChanged;
 
   const CalendarWidget({
-    Key? key,
+    super.key,
     required this.focusedDay,
     required this.selectedDay,
     required this.events,
     required this.onDaySelected,
     this.onPageChanged,
-  }) : super(key: key);
+  });
 
   List<EventModel> _getEventsForDay(DateTime day) {
     return events[DateTime(day.year, day.month, day.day)] ?? [];

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/config/routes.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
@@ -39,14 +38,6 @@ class SettingsSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildSettingItem(
-            icon: Icons.notifications,
-            title: 'Notifications',
-            onTap: () {
-              Navigator.pushNamed(context, '/notifications');
-            },
-          ),
-          const Divider(height: 1),
           _buildSettingItem(
             icon: Icons.language,
             title: 'Langue',
@@ -105,39 +96,30 @@ class SettingsSection extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop(); // Close dialog
-              
+
               // Create AuthCubit and perform logout
               final authCubit = AuthCubit(
                 requestOtpUseCase: RequestOtpUseCase(
-                  LoginRepositoryImpl(
-                    remoteDataSource: AuthRemoteDataSource(),
-                  ),
+                  LoginRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
                 ),
                 verifyOtpUseCase: VerifyOtpUseCase(
-                  OtpRepositoryImpl(
-                    remoteDataSource: AuthRemoteDataSource(),
-                  ),
+                  OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
                 ),
                 resendOtpUseCase: ResendOtpUseCase(
-                  OtpRepositoryImpl(
-                    remoteDataSource: AuthRemoteDataSource(),
-                  ),
+                  OtpRepositoryImpl(remoteDataSource: AuthRemoteDataSource()),
                 ),
               );
-              
+
               await authCubit.logout();
-              
+
               // Navigate to login and remove all previous routes
               if (context.mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  AppRoutes.login,
-                  (route) => false,
-                );
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
               }
             },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.error,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Déconnexion'),
           ),
         ],

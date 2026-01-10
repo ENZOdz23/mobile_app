@@ -1,4 +1,5 @@
 /// Data model representing a calendar event.
+library;
 import 'package:flutter/material.dart';
 
 class EventModel {

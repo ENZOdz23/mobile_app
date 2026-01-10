@@ -17,6 +17,8 @@ import 'cubits/prospects_cubit.dart';
 import 'cubits/contacts_list_cubit.dart';
 
 class ContactsListScreen extends StatelessWidget {
+  const ContactsListScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Initialize repositories and use cases

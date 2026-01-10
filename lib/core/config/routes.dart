@@ -12,6 +12,7 @@ import '../../features/authentication/data/otp_repository_impl.dart';
 import '../../features/authentication/data/login_repository_impl.dart';
 import '../../features/authentication/data/datasources/auth_remote_data_source.dart';
 import '../../features/offres/presentation/home_screen.dart';
+import '../../features/offres/presentation/offer_detail_screen.dart';
 import '../../features/entreprise_state/entreprise_state.dart';
 import '../../features/contacts/presentation/contacts_list_screen.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
@@ -45,6 +46,7 @@ class AppRoutes {
   static const String authTest = '/auth-test';
   static const String dashboard = '/dashboard';
   static const String offres = '/offres';
+  static const String offerDetails = '/offer-details';
   static const String changeEntrepriseState = '/change-entreprise-state';
   static const String contacts = '/contacts';
   static const String calendar = '/calendar';
@@ -102,6 +104,13 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => const OffresScreen(),
           settings: RouteSettings(name: offres),
+        );
+
+      case offerDetails:
+        final offerId = settings.arguments as String;
+        return MaterialPageRoute(
+          builder: (_) => OfferDetailScreen(offerId: offerId),
+          settings: RouteSettings(name: offerDetails),
         );
 
       case changeEntrepriseState:

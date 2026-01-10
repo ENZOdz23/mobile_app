@@ -17,11 +17,11 @@ class ChangeEntrepriseStatePage extends StatefulWidget {
   final UpdateCompanyStateUseCase updateCompanyStateUseCase;
 
   const ChangeEntrepriseStatePage({
-    Key? key,
+    super.key,
     required this.getCompaniesUseCase,
     required this.getStatesUseCase,
     required this.updateCompanyStateUseCase,
-  }) : super(key: key);
+  });
 
   @override
   _ChangeEntrepriseStatePageState createState() =>

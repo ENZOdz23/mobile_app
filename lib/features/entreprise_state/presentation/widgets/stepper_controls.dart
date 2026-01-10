@@ -8,13 +8,13 @@ class StepperControls extends StatelessWidget {
   final bool isFinishStep;
 
   const StepperControls({
-    Key? key,
+    super.key,
     required this.onNext,
     required this.onPrevious,
     required this.isNextEnabled,
     required this.isPreviousEnabled,
     required this.isFinishStep,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +29,8 @@ class StepperControls extends StatelessWidget {
         if (isFinishStep)
           ElevatedButton(
             onPressed: isNextEnabled ? onNext : null,
-            child: Text('Terminer'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: Text('Terminer'),
           ),
         SizedBox(width: 12),
         TextButton(

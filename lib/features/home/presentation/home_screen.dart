@@ -81,7 +81,7 @@ class DashboardBody extends StatelessWidget {
                     Text(
                       'Statistiques',
                       style: AppTextStyles.headlineMedium.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -120,7 +120,7 @@ class DashboardBody extends StatelessWidget {
                     Text(
                       'Prospects par statut',
                       style: AppTextStyles.headlineMedium.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -133,7 +133,7 @@ class DashboardBody extends StatelessWidget {
                     Text(
                       'Actions rapides',
                       style: AppTextStyles.headlineMedium.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -165,7 +165,7 @@ class DashboardBody extends StatelessWidget {
                         Text(
                           'Activités récentes',
                           style: AppTextStyles.headlineMedium.copyWith(
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         if (state.data.recentActivities.isNotEmpty)
@@ -220,7 +220,7 @@ class DashboardBody extends StatelessWidget {
                       ...state.data.recentActivities
                           .take(5)
                           .map((activity) => ActivityItem(activity: activity))
-                          .toList(),
+                          ,
                     const SizedBox(height: 20),
                   ],
                 ),
