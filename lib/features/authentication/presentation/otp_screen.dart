@@ -5,12 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/config/routes.dart';
-import '../models/otp.dart';
-import '../domain/verify_otp_usecase.dart';
-import '../domain/resend_otp_usecase.dart';
-import '../domain/request_otp_usecase.dart';
-import '../data/otp_repository_impl.dart';
-import '../data/datasources/auth_remote_data_source.dart';
 import '../presentation/cubit/auth_cubit.dart';
 import '../presentation/cubit/auth_state.dart';
 
