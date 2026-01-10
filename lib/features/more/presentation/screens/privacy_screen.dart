@@ -52,7 +52,7 @@ class PrivacyScreen extends StatelessWidget {
       value: value,
       onChanged: (val) {},
       title: Text(title, style: AppTextStyles.bodyLarge),
-      activeColor: AppColors.primary,
+      activeThumbColor: AppColors.primary,
     );
   }
 }

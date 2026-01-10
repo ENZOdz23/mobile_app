@@ -12,7 +12,6 @@ import '../domain/get_user_profile_usecase.dart';
 import '../domain/test_network_speed_usecase.dart';
 import '../models/network_speed.dart';
 import '../../../shared/components/base_scaffold.dart';
-import '../../../core/config/routes.dart';
 import '../../../core/themes/app_theme.dart';
 
 class MoreScreen extends StatelessWidget {

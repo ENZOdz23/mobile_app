@@ -7,11 +7,11 @@ class CompanyDropdown extends StatelessWidget {
   final ValueChanged<CompanyModel?> onChanged;
 
   const CompanyDropdown({
-    Key? key,
+    super.key,
     required this.companies,
     required this.selectedCompany,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class CompanyDropdown extends StatelessWidget {
         labelText: 'Sélectionner une entreprise',
         border: OutlineInputBorder(),
       ),
-      value: selectedCompany,
+      initialValue: selectedCompany,
       items: companies
           .map(
             (company) => DropdownMenuItem(

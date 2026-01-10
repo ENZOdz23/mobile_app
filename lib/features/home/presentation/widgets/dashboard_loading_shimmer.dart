@@ -1,7 +1,6 @@
 // lib/features/home/presentation/widgets/dashboard_loading_shimmer.dart
 
 import 'package:flutter/material.dart';
-import '../../../../core/themes/app_theme.dart';
 
 class DashboardLoadingShimmer extends StatelessWidget {
   const DashboardLoadingShimmer({super.key});

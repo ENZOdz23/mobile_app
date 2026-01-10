@@ -166,8 +166,9 @@ class _EditContactFormState extends State<EditContactForm> {
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty)
+                  if (value == null || value.trim().isEmpty) {
                     return 'Email requis';
+                  }
                   return ContactValidator.validateEmail(value);
                 },
               ),

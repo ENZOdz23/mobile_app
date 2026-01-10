@@ -41,10 +41,11 @@ class NetworkSpeedCard extends StatelessWidget {
               ),
               IconButton(
                 icon: Icon(
-                  speed.isLoading ? Icons.refresh : Icons.speed,
-                  color: AppColors.primary,  // Changed
+                  speed.isLoading ? Icons.cancel : Icons.speed,
+                  color: AppColors.primary,
                 ),
-                onPressed: speed.isLoading ? null : onTest,
+                onPressed: onTest,
+                tooltip: speed.isLoading ? 'Annuler le test' : 'Démarrer le test',
               ),
             ],
           ),
@@ -53,28 +54,75 @@ class NetworkSpeedCard extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  CircularProgressIndicator(
-                    color: AppColors.primary,  // Changed
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: CircularProgressIndicator(
+                          value: speed.progressPercent / 100,
+                          strokeWidth: 8,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      Text(
+                        '${speed.progressPercent}%',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  Text('Test en cours...', style: AppTextStyles.bodyMedium),  // Changed
+                  Text(
+                    speed.isDownloadComplete
+                        ? 'Test de téléversement...'
+                        : 'Test de téléchargement...',
+                    style: AppTextStyles.bodyMedium,
+                  ),
+                  if (speed.downloadSpeed > 0) ...[
+                    const SizedBox(height: 16),
+                    _buildSpeedItem(
+                      'Téléchargement',
+                      speed.getDownloadSpeedDisplay(),
+                      Icons.download,
+                      isComplete: speed.isDownloadComplete,
+                    ),
+                  ],
+                  if (speed.uploadSpeed > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildSpeedItem(
+                      'Téléversement',
+                      speed.getUploadSpeedDisplay(),
+                      Icons.upload,
+                      isComplete: speed.isUploadComplete,
+                    ),
+                  ],
                 ],
               ),
             )
-          else if (speed.downloadSpeed > 0)
+          else if (speed.downloadSpeed > 0 || speed.uploadSpeed > 0)
             Column(
               children: [
-                _buildSpeedItem(
-                  'Téléchargement',
-                  '${speed.downloadSpeed.toStringAsFixed(2)} Kbps',
-                  Icons.download,
-                ),
-                const SizedBox(height: 12),
-                _buildSpeedItem(
-                  'Téléversement',
-                  '${speed.uploadSpeed.toStringAsFixed(2)} Kbps',
-                  Icons.upload,
-                ),
+                if (speed.downloadSpeed > 0) ...[
+                  _buildSpeedItem(
+                    'Téléchargement',
+                    speed.getDownloadSpeedDisplay(),
+                    Icons.download,
+                    isComplete: true,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (speed.uploadSpeed > 0) ...[
+                  _buildSpeedItem(
+                    'Téléversement',
+                    speed.getUploadSpeedDisplay(),
+                    Icons.upload,
+                    isComplete: true,
+                  ),
+                ],
               ],
             )
           else
@@ -94,22 +142,32 @@ class NetworkSpeedCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSpeedItem(String label, String value, IconData icon) {
+  Widget _buildSpeedItem(
+    String label,
+    String value,
+    IconData icon, {
+    bool isComplete = false,
+  }) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.primary),  // Changed
+        Icon(
+          icon,
+          color: isComplete ? AppColors.primary : AppColors.primary.withOpacity(0.6),
+        ),
         const SizedBox(width: 12),
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(  // Changed
-            color: AppColors.secondary.withOpacity(0.6),
+        Expanded(
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.secondary.withOpacity(0.6),
+            ),
           ),
         ),
-        const Spacer(),
         Text(
           value,
-          style: AppTextStyles.bodyLarge.copyWith(  // Changed
+          style: AppTextStyles.bodyLarge.copyWith(
             fontWeight: FontWeight.bold,
+            color: isComplete ? AppColors.onSurfaceLight : AppColors.primary.withOpacity(0.7),
           ),
         ),
       ],

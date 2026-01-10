@@ -63,63 +63,71 @@ abstract class AppBaseTheme {
   Color get errorColor;
 
   TextTheme get textTheme => TextTheme(
-        headlineLarge: AppTextStyles.headlineLarge.copyWith(color: onBackgroundColor),
-        headlineMedium: AppTextStyles.headlineMedium.copyWith(color: onBackgroundColor),
-        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: onBackgroundColor),
-        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: onBackgroundColor),
-        labelLarge: AppTextStyles.button,
-      );
+    headlineLarge: AppTextStyles.headlineLarge.copyWith(
+      color: onBackgroundColor,
+    ),
+    headlineMedium: AppTextStyles.headlineMedium.copyWith(
+      color: onBackgroundColor,
+    ),
+    bodyLarge: AppTextStyles.bodyLarge.copyWith(color: onBackgroundColor),
+    bodyMedium: AppTextStyles.bodyMedium.copyWith(color: onBackgroundColor),
+    labelLarge: AppTextStyles.button,
+  );
 
   AppBarTheme get appBarTheme => AppBarTheme(
-        backgroundColor: primaryColor,
-        foregroundColor: onPrimaryColor,
-        elevation: 0,
-        titleTextStyle: AppTextStyles.headlineMedium.copyWith(color: onPrimaryColor),
-      );
+    backgroundColor: primaryColor,
+    foregroundColor: onPrimaryColor,
+    elevation: 0,
+    titleTextStyle: AppTextStyles.headlineMedium.copyWith(
+      color: onPrimaryColor,
+    ),
+  );
 
-  FloatingActionButtonThemeData get floatingActionButtonTheme => FloatingActionButtonThemeData(
+  FloatingActionButtonThemeData get floatingActionButtonTheme =>
+      FloatingActionButtonThemeData(
         backgroundColor: accentColor,
         foregroundColor: onPrimaryColor,
       );
 
   ButtonThemeData get buttonTheme => ButtonThemeData(
-        buttonColor: primaryColor,
-        textTheme: ButtonTextTheme.primary,
-      );
+    buttonColor: primaryColor,
+    textTheme: ButtonTextTheme.primary,
+  );
 
   ThemeData get themeData => ThemeData(
-        brightness: _brightness,
-        primaryColor: primaryColor,
-        scaffoldBackgroundColor: backgroundColor,
-        colorScheme: ColorScheme(
-          brightness: _brightness,
-          primary: primaryColor,
-          onPrimary: onPrimaryColor,
-          secondary: secondaryColor,
-          onSecondary: onSecondaryColor,
-          surface: surfaceColor,
-          onSurface: onSurfaceColor,
-          error: errorColor,
-          onError: AppColors.onPrimary,
-          tertiary: accentColor,
-          onTertiary: onPrimaryColor,
-        ),
-        appBarTheme: appBarTheme,
-        floatingActionButtonTheme: floatingActionButtonTheme,
-        buttonTheme: buttonTheme,
-        cardColor: surfaceColor,
-        textTheme: textTheme,
-        
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedItemColor: AppColors.primary,             // Your theme's primary color
-          unselectedItemColor: AppColors.secondary,         // Your theme's accent/secondary color
-          backgroundColor: AppColors.primary,          // or AppColors.surfaceDark for dark mode
-          showSelectedLabels: true,
-          showUnselectedLabels: false,
-          // Add any other options you want globally
-        ),
+    brightness: _brightness,
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: backgroundColor,
+    colorScheme: ColorScheme(
+      brightness: _brightness,
+      primary: primaryColor,
+      onPrimary: onPrimaryColor,
+      secondary: secondaryColor,
+      onSecondary: onSecondaryColor,
+      surface: surfaceColor,
+      onSurface: onSurfaceColor,
+      error: errorColor,
+      onError: AppColors.onPrimary,
+      tertiary: accentColor,
+      onTertiary: onPrimaryColor,
+    ),
+    appBarTheme: appBarTheme,
+    floatingActionButtonTheme: floatingActionButtonTheme,
+    buttonTheme: buttonTheme,
+    cardColor: surfaceColor,
+    textTheme: textTheme,
 
-      );
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      selectedItemColor: AppColors.primary, // Your theme's primary color
+      unselectedItemColor:
+          AppColors.secondary, // Your theme's accent/secondary color
+      backgroundColor:
+          AppColors.primary, // or AppColors.surfaceDark for dark mode
+      showSelectedLabels: true,
+      showUnselectedLabels: false,
+      // Add any other options you want globally
+    ),
+  );
 
   Brightness get _brightness;
 }

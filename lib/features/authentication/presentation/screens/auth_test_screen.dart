@@ -2,7 +2,6 @@
 // Temporary test screen - remove after validation
 
 import 'package:flutter/material.dart';
-import '../../../contacts/models/contact.dart';
 import '../../data/login_repository_impl.dart';
 import '../../data/otp_repository_impl.dart';
 import '../../domain/request_otp_usecase.dart';

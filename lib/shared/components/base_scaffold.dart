@@ -10,11 +10,13 @@ class BaseScaffold extends StatefulWidget {
   final String title;
   final Widget body;
   final bool showBottomNav;
+  final bool showBackButton;
 
   const BaseScaffold({
     required this.title,
     required this.body,
     this.showBottomNav = true,
+    this.showBackButton = false,
     super.key,
   });
 
@@ -36,7 +38,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     setState(() {
       _showMenu = false;
     });
-    
+
     if (item == 'Ajouter un prospect') {
       Navigator.of(context).pushNamed(AppRoutes.addProspect);
     } else if (item == 'Ajouter un contact') {
@@ -58,7 +60,10 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     _currentIndex = _routeToIndex(routeName, widget);
 
     return Scaffold(
-      appBar: CustomAppBar(title: widget.title),
+      appBar: CustomAppBar(
+        title: widget.title,
+        showBackButton: widget.showBackButton,
+      ),
       body: Stack(
         children: [
           widget.body,
@@ -73,24 +78,13 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildMenuItem(
-                          'Mon portefeuille',
-                          Icons.account_balance_wallet,
-                        ),
                         const SizedBox(height: 12),
                         _buildMenuItem(
                           'Ajouter un prospect',
                           Icons.person_add_outlined,
                         ),
                         const SizedBox(height: 12),
-                        _buildMenuItem('Ajouter un client', Icons.person_add),
-                        const SizedBox(height: 12),
                         _buildMenuItem('Ajouter un contact', Icons.contacts),
-                        const SizedBox(height: 12),
-                        _buildMenuItem(
-                          'Importer des contacts',
-                          Icons.upload_file,
-                        ),
                       ],
                     ),
                   ),

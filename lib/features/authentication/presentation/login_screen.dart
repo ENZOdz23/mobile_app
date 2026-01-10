@@ -158,8 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         hasError: _errorMessage != null,
                         validator: PhoneValidator.validatePhoneNumber,
                         onChanged: (value) {
-                          if (_errorMessage != null)
+                          if (_errorMessage != null) {
                             setState(() => _errorMessage = null);
+                          }
                         },
                       ),
 

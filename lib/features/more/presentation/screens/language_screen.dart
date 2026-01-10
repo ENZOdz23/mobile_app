@@ -23,8 +23,6 @@ class _LanguageScreenState extends State<LanguageScreen> {
           _buildLanguageItem('fr', 'Français', 'Français'),
           const Divider(),
           _buildLanguageItem('ar', 'العربية', 'Arabe'),
-          const Divider(),
-          _buildLanguageItem('en', 'English', 'Anglais'),
         ],
       ),
     );
