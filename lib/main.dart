@@ -13,29 +13,41 @@ import 'package:flutter/services.dart';
 import 'core/themes/app_theme.dart';
 import 'core/config/routes.dart';
 import 'core/api/api_client.dart';
+import 'features/offres/data/offer_repository.dart';
+import 'core/utils/motivation_manager.dart';
 
 void main() async {
-  // Ensure Flutter binding is initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  await SentryFlutter.init(
+    (options) {
+      options
+        ..dsn =
+            'https://ae255c146a247f1455edc35904c3b715@o4510688299974656.ingest.de.sentry.io/4510688307183696'
+        ..tracesSampleRate = 1.0;
+    },
+    appRunner: () async {
+      // Ensure Flutter binding is initialized
+      WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize API client
-  await Api.initialize();
+      // Initialize Firebase
+      await Firebase.initializeApp();
 
-  // Set preferred orientations (portrait only for mobile app)
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+      // Pass all uncaught "fatal" errors from the framework to Crashlytics
+      FlutterError.onError = (errorDetails) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      };
 
-  // Set system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
+      // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+
+      // Initialize API client
+      await Api.initialize();
+
+      // Initialize offres database with seed data
+      final offerRepository = OfferRepository();
+      await offerRepository.initializeData();
 
   // Initialize LocalStorageService
   final localStorage = await LocalStorageService.getInstance();
@@ -50,6 +62,12 @@ void main() async {
 
 class ProspectraApp extends StatelessWidget {
   const ProspectraApp({super.key});
+
+  // Firebase Analytics instance
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(
+    analytics: analytics,
+  );
 
   @override
   Widget build(BuildContext context) {

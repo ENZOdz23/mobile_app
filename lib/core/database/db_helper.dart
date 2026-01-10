@@ -21,7 +21,7 @@ class DBHelper {
     String path = join(await getDatabasesPath(), 'app_database.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -59,6 +59,23 @@ class DBHelper {
         status TEXT NOT NULL
       )
     ''');
+
+    // Create offres table
+    await db.execute('''
+      CREATE TABLE offres (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        shortDescription TEXT NOT NULL,
+        fullDescription TEXT NOT NULL,
+        keyBenefit TEXT NOT NULL,
+        startingPrice TEXT,
+        currency TEXT NOT NULL,
+        targetCompanyType TEXT NOT NULL,
+        includedServices TEXT NOT NULL,
+        category TEXT NOT NULL,
+        icon TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -66,6 +83,25 @@ class DBHelper {
       await db.execute('DROP TABLE IF EXISTS contacts');
       await db.execute('DROP TABLE IF EXISTS prospects');
       await _onCreate(db, newVersion);
+    }
+
+    if (oldVersion < 3) {
+      // Add offres table for version 3
+      await db.execute('''
+        CREATE TABLE offres (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          shortDescription TEXT NOT NULL,
+          fullDescription TEXT NOT NULL,
+          keyBenefit TEXT NOT NULL,
+          startingPrice TEXT,
+          currency TEXT NOT NULL,
+          targetCompanyType TEXT NOT NULL,
+          includedServices TEXT NOT NULL,
+          category TEXT NOT NULL,
+          icon TEXT NOT NULL
+        )
+      ''');
     }
   }
 
@@ -81,21 +117,12 @@ class DBHelper {
 
   Future<int> update(String table, Map<String, dynamic> data, String id) async {
     final db = await database;
-    return await db.update(
-      table,
-      data,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.update(table, data, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> delete(String table, String id) async {
     final db = await database;
-    return await db.delete(
-      table,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<Map<String, dynamic>>> query(String table) async {
